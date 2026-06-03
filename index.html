@@ -31,15 +31,34 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
   background:#fff;border:2px solid #E0E4EC;border-radius:8px;}
 .cs-panel.open{display:flex;}
 /* ── Role buttons ── */
-.role-btn{display:flex;align-items:center;gap:7px;font-size:13px;color:#333;
-  background:#fff;border:2px solid #E0E4EC;border-radius:6px;padding:8px 16px;
-  cursor:pointer;font-family:inherit;transition:border-color .12s,background .12s;}
+.role-btn{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#444;
+  background:#fff;border:2px solid #E0E4EC;border-radius:8px;
+  padding:6px 13px 6px 7px;cursor:pointer;font-family:inherit;
+  transition:border-color .15s,background .15s,color .15s;}
+.role-btn:not(.active):hover{border-color:#bbb;background:#FAFAFA;}
 .role-btn.active{font-weight:700;}
-.role-btn:not(.active){cursor:pointer;}
-.role-btn:not(.active):hover{border-color:#E0E4EC;background:#fff;box-shadow:none;}
-.rdot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
-.rcode-badge{font-size:11px;font-weight:800;background:rgba(0,0,0,.08);
-  border-radius:4px;padding:2px 6px;font-family:monospace;}
+.rcode-pill{font-size:12px;font-weight:900;font-family:monospace;border-radius:6px;
+  padding:4px 8px;min-width:36px;text-align:center;flex-shrink:0;letter-spacing:.3px;}
+.role-lbl{font-size:12.5px;font-weight:500;white-space:nowrap;}
+/* ── Role info panel (selectRole) ── */
+.role-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;
+  padding-bottom:12px;border-bottom:1.5px solid #eee;}
+.role-code-block{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:10px;padding:10px 16px;min-width:54px;border:2px solid;}
+.role-code-block .rc-code{font-family:monospace;font-weight:900;font-size:20px;line-height:1;}
+.role-code-block .rc-cnt{font-size:10px;font-weight:700;opacity:.7;margin-top:3px;}
+.role-meta{flex:1;min-width:0;}
+.role-meta .rm-name{font-size:16px;font-weight:800;margin-bottom:3px;}
+.role-meta .rm-desc{font-size:12.5px;color:#666;line-height:1.55;}
+.role-sys-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:6px;}
+.rsys-card{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border-radius:8px;padding:7px 10px;cursor:pointer;border:1.5px solid transparent;
+  transition:filter .1s,border-color .1s;}
+.rsys-card:hover{filter:brightness(.95);border-color:rgba(0,0,0,.12);}
+.rsys-name{font-weight:600;font-size:12.5px;flex:1;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;}
+.rsys-acc{font-family:monospace;font-weight:800;font-size:11px;color:#fff;
+  border-radius:4px;padding:2px 7px;flex-shrink:0;}
 /* ── Connection legend ── */
 .cl{font-size:13px;color:#333;background:#fff;border:2px solid #E0E4EC;
   border-radius:6px;padding:7px 14px;display:flex;align-items:center;gap:8px;}
@@ -59,12 +78,18 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
   transition:background .1s,border-color .1s;}
 .iact:hover{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;}
 .iact.marked{background:#D1FAE5;border-color:#047857;color:#047857;}
+.iact-i{width:28px;height:28px;border-radius:50%!important;padding:0!important;
+  display:inline-flex;align-items:center;justify-content:center;font-style:italic;
+  font-family:Georgia,serif;font-size:15px;font-weight:900;flex-shrink:0;}
+.iact-i.marked{background:#EEEAFF!important;border-color:#7C6EF5!important;color:#4A3DB8!important;}
 /* ── Submenu grid ── */
 .sub-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:10px 12px;}
 .sub-item{display:flex;align-items:center;justify-content:space-between;gap:6px;
   background:#fff;border:1.5px solid #E0E4EC;border-radius:6px;padding:5px 8px;
-  font-size:12px;transition:border-color .1s;}
+  font-size:12px;transition:border-color .1s,background .1s;}
 .sub-item:hover{border-color:#aaa;}
+.sub-item.active{background:#EEEAFF;border-color:#7C6EF5;}
+.sub-item.active .sub-name{color:#4A3DB8;}
 .sub-name{font-weight:600;color:#333;font-size:12px;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap;flex:1;cursor:pointer;}
 .sub-name:hover{color:#7C6EF5;}
@@ -74,9 +99,27 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
   line-height:1.4;transition:all .1s;}
 .sb:hover{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;}
 .sb.sb-chk.checked{background:#D1FAE5;border-color:#047857;color:#047857;}
-#info{min-height:68px;padding:18px 24px;margin-bottom:14px;border-radius:14px;
+#info{min-height:68px;padding:0;margin-bottom:14px;border-radius:14px;
   background:#fff;font-size:14px;line-height:1.8;color:#444;border:1.5px solid #E0E4EC;
-  width:100%;max-width:1300px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+  width:100%;max-width:1300px;box-shadow:0 2px 8px rgba(0,0,0,.07);
+  display:flex;overflow:hidden;}
+.info-main{flex:1;padding:18px 24px;min-width:0;}
+.info-side{width:230px;min-width:230px;border-left:2px solid #E0E4EC;padding:16px;
+  background:#F8F9FF;display:none;flex-direction:column;gap:8px;overflow-y:auto;}
+.info-side.open{display:flex;}
+.is-hd{font-size:10px;font-weight:800;color:#aaa;letter-spacing:.7px;text-transform:uppercase;
+  padding-bottom:6px;border-bottom:1px solid #E0E4EC;margin-bottom:2px;}
+.is-row{display:flex;flex-direction:column;gap:2px;padding:8px 10px;
+  background:#fff;border-radius:8px;border:1.5px solid #E0E4EC;}
+.is-lbl{font-size:10px;font-weight:700;color:#aaa;letter-spacing:.5px;text-transform:uppercase;}
+.is-val{font-size:13px;font-weight:600;color:#333;}
+.is-badge{font-size:11px;font-weight:700;background:#FEF3C7;border:1.5px solid #F59E0B;
+  color:#92400E;border-radius:8px;padding:7px 10px;text-align:center;}
+.is-nav{font-size:12px;font-weight:700;background:#F3F4FA;border:2px solid #D0D4E0;
+  border-radius:8px;padding:8px 10px;cursor:pointer;color:#555;font-family:inherit;
+  text-align:center;width:100%;transition:all .1s;display:flex;align-items:center;
+  justify-content:center;gap:6px;}
+.is-nav:hover{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;}
 #info strong{color:#111;font-weight:700;font-size:16px;display:block;margin-bottom:5px}
 .rtags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;border-top:1px solid #eee;padding-top:8px;}
 .rtag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;border-radius:8px;
@@ -100,6 +143,8 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
 #mtbl td{border:1px solid #DDE1EA;padding:7px 8px;text-align:center;font-size:13px;
   transition:background .12s;}
 #mtbl tbody tr:hover td,#mtbl tbody tr:hover .rh{background:#EEF2FF!important;cursor:pointer;}
+#mtbl tbody tr.mat-active td,#mtbl tbody tr.mat-active .rh{background:#EEEAFF!important;}
+#mtbl tbody tr.mat-active .rh{border-left-width:4px;}
 .mc{border-radius:6px;padding:4px 9px;display:inline-block;font-size:12px;
   font-weight:800;font-family:monospace;}
 svg text{font-family:'Segoe UI',system-ui,sans-serif;pointer-events:none}
@@ -156,7 +201,7 @@ footer{margin-top:18px;font-size:12px;color:#bbb;text-align:center}
   <div class="aci"><b>OYT</b><span class="aci-lbl">Oxuma + Yazma + Təsdiq — Tam işlək giriş: oxuma, yazma və rəsmi təsdiqləmə</span></div>
 </div>
 
-<div id="info">Sistemin üzərinə toxunun — əlaqəli xətlər və rol cədvəli görünəcək</div>
+<div id="info"><div class="info-main" style="color:#aaa;font-size:14px">Sistemin üzərinə toxunun — əlaqəli xətlər və rol cədvəli görünəcək</div></div>
 
 <div id="canvas-wrap">
 <svg id="svg" width="1300" height="645" viewBox="0 0 1300 645">
@@ -581,6 +626,42 @@ const ADESC={
   'OYT':'Tam işlək giriş — oxuma, yazma/redaktə və rəsmi təsdiqləmə'
 };
 
+const SYSPROJECT={
+  meis:    {start:'2021-03-01',deadline:'2025-12-31',ft:'2023-09-01',ftDeadline:'2025-06-30',proto:''},
+  api:     {start:'2021-06-01',deadline:'2025-09-30',ft:null,proto:''},
+  bi:      {start:'2022-01-10',deadline:'2026-03-31',ft:null,proto:''},
+  dw:      {start:'2022-04-01',deadline:'2026-06-30',ft:null,proto:''},
+  notify:  {start:'2022-02-15',deadline:'2025-12-31',ft:null,proto:''},
+  storage: {start:'2022-03-01',deadline:'2026-01-31',ft:null,proto:''},
+  mobile:  {start:'2023-01-01',deadline:'2026-06-30',ft:null,proto:''},
+  esened:  {start:'2021-09-01',deadline:'2025-06-30',ft:'2023-03-01',ftDeadline:'2025-03-31',proto:''},
+  halga:   {start:'2022-06-01',deadline:'2026-12-31',ft:null,proto:''},
+  task:    {start:'2022-08-01',deadline:'2026-06-30',ft:null,proto:''},
+  hr:      {start:'2021-11-01',deadline:'2025-09-30',ft:'2023-06-01',ftDeadline:'2025-06-30',proto:''},
+  arxiv:   {start:'2022-05-01',deadline:'2026-03-31',ft:null,proto:''},
+  vasite:  {start:'2023-03-01',deadline:'2026-12-31',ft:null,proto:''},
+  budce:   {start:'2023-01-01',deadline:'2026-09-30',ft:null,proto:''},
+  audit:   {start:'2022-10-01',deadline:'2025-12-31',ft:'2024-01-01',ftDeadline:'2025-09-30',proto:''},
+  reyestr: {start:'2021-01-15',deadline:'2025-12-31',ft:'2022-12-01',ftDeadline:'2025-06-30',proto:''},
+  toll:    {start:'2021-07-01',deadline:'2025-06-30',ft:'2023-01-01',ftDeadline:'2025-03-31',proto:''},
+  neqliyyat:{start:'2022-03-01',deadline:'2026-06-30',ft:null,proto:''},
+  tikinti: {start:'2022-09-01',deadline:'2026-12-31',ft:null,proto:''},
+  monitorinq:{start:'2023-01-01',deadline:'2026-09-30',ft:null,proto:''},
+  istisman:{start:'2022-07-01',deadline:'2026-06-30',ft:null,proto:''},
+  tehlu:   {start:'2021-10-01',deadline:'2025-12-31',ft:'2023-05-01',ftDeadline:'2025-06-30',proto:''},
+  icaze:   {start:'2022-01-01',deadline:'2026-03-31',ft:null,proto:''},
+  komm:    {start:'2023-06-01',deadline:'2026-12-31',ft:null,proto:''},
+  yolknar: {start:'2022-11-01',deadline:'2026-06-30',ft:null,proto:''},
+  torpaq:  {start:'2023-04-01',deadline:'2027-03-31',ft:null,proto:''},
+  ekologiya:{start:'2023-09-01',deadline:'2027-06-30',ft:null,proto:''},
+  mygov:   {start:'2021-05-01',deadline:'2025-12-31',ft:'2022-09-01',ftDeadline:'2025-09-30',proto:''},
+  odenis:  {start:'2021-08-01',deadline:'2025-09-30',ft:'2023-02-01',ftDeadline:'2025-06-30',proto:''},
+  xerite:  {start:'2022-06-01',deadline:'2026-06-30',ft:null,proto:''},
+  mehdudat:{start:'2023-02-01',deadline:'2026-12-31',ft:null,proto:''},
+  portal:  {start:'2021-12-01',deadline:'2025-12-31',ft:'2023-08-01',ftDeadline:'2025-09-30',proto:''},
+  chatbot: {start:'2023-11-01',deadline:'2027-03-31',ft:null,proto:''},
+};
+
 // Build adjacency for quick lookup
 const adjMap={};
 connections.forEach(c=>{
@@ -666,8 +747,8 @@ ROLES.forEach(r=>{
   const btn=document.createElement('button');
   btn.className='role-btn'; btn.dataset.rid=r.id;
   btn.title=r.desc;
-  btn.innerHTML=`<span class="rdot" style="background:${r.color}"></span>
-    <span class="rcode-badge" style="color:${r.color}">${r.code}</span>${r.label}`;
+  btn.innerHTML=`<span class="rcode-pill" style="background:${r.fill};color:${r.text};border:1.5px solid ${r.color}40">${r.code}</span>
+    <span class="role-lbl">${r.label}</span>`;
   btn.addEventListener('click',()=>selectRole(r.id));
   rolesPanel.appendChild(btn);
 });
@@ -721,7 +802,10 @@ function drawConnections(targetPos, isRad){
 
 function clearRoleBtns(){
   document.querySelectorAll('.role-btn').forEach(b=>{
-    b.classList.remove('active');b.style.background='';b.style.borderColor='';b.style.color='';
+    b.classList.remove('active');
+    b.style.background=''; b.style.borderColor=''; b.style.color='';
+    const pill=b.querySelector('.rcode-pill');
+    if(pill){pill.style.background=''; pill.style.color=''; pill.style.border='';}
   });
 }
 
@@ -788,7 +872,14 @@ function resetAll(){
     el.style.opacity='0.07';
     el.setAttribute('stroke-width',el.dataset.w);
   });
-  infoEl.innerHTML='Sistemin üzərinə toxunun — əlaqəli xətlər və rol cədvəli görünəcək';
+  infoEl.innerHTML='<div class="info-main" style="color:#aaa;font-size:14px">Sistemin üzərinə toxunun — əlaqəli xətlər və rol cədvəli görünəcək</div>';
+}
+
+function toggleInfoSide(id,btn){
+  const side=document.getElementById('info-side-'+id);
+  if(!side) return;
+  const open=side.classList.toggle('open');
+  btn.classList.toggle('marked',open);
 }
 
 function selectSystem(id){
@@ -818,23 +909,60 @@ function selectSystem(id){
   }).join('');
   const cl=COLORS[s.color];
   const sysDesc=SYSDESC[id]||s.desc;
+  const proj=SYSPROJECT[id]||{};
+  const hasFT=!!proj.ft;
+  const netIcon=`<svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="display:block">
+    <circle cx="6.5" cy="6.5" r="1.4" stroke="currentColor" stroke-width="1.2"/>
+    <circle cx="1.5" cy="1.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+    <circle cx="11.5" cy="1.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+    <circle cx="1.5" cy="11.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+    <circle cx="11.5" cy="11.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+    <line x1="2.4" y1="2.4" x2="5.4" y2="5.4" stroke="currentColor" stroke-width="1.1"/>
+    <line x1="10.6" y1="2.4" x2="7.6" y2="5.4" stroke="currentColor" stroke-width="1.1"/>
+    <line x1="2.4" y1="10.6" x2="5.4" y2="7.6" stroke="currentColor" stroke-width="1.1"/>
+    <line x1="10.6" y1="10.6" x2="7.6" y2="7.6" stroke="currentColor" stroke-width="1.1"/>
+  </svg>`;
   infoEl.innerHTML=`
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-      margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee">
-      <strong style="font-size:15px;font-weight:800;color:${cl.text};flex:1;line-height:1.35">${s.label}</strong>
-      <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
-        <button class="iact" title="Məlumat — Sistemin tam texniki izahı">İ</button>
-        <button class="iact" title="Fayl / Sənəd növü">ft</button>
-        <button class="iact" title="Seçim — bu sistemi işarələ"
-          onclick="this.classList.toggle('marked');this.textContent=this.classList.contains('marked')?'✓':'☐'">☐</button>
-        <button class="iact" title="Rol axını strukturu — əlaqəli xətlər"
-          onclick="applyHover('${id}')">≡</button>
+    <div class="info-main">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;
+        margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee">
+        <strong style="font-size:15px;font-weight:800;color:${cl.text};flex:1;line-height:1.35">${s.label}</strong>
+        <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
+          <button class="iact iact-i" id="info-i-btn-${id}" title="Layihə məlumatları"
+            onclick="toggleInfoSide('${id}',this)">i</button>
+          <button class="iact" title="Seçim — bu sistemi işarələ"
+            onclick="this.classList.toggle('marked');this.textContent=this.classList.contains('marked')?'✓':'☐'">☐</button>
+        </div>
       </div>
+      <div style="font-size:13px;color:#555;line-height:1.65;margin-bottom:10px">${sysDesc}</div>
+      <div style="font-size:11px;font-weight:800;color:#aaa;letter-spacing:.7px;text-transform:uppercase;
+        margin-bottom:6px">Əlçatanlığı olan rollar — ${Object.keys(acc).length} rol</div>
+      <div class="rtags">${roleHtml}</div>
     </div>
-    <div style="font-size:13px;color:#555;line-height:1.65;margin-bottom:10px">${sysDesc}</div>
-    <div style="font-size:11px;font-weight:800;color:#aaa;letter-spacing:.7px;text-transform:uppercase;
-      margin-bottom:6px">Əlçatanlığı olan rollar — ${Object.keys(acc).length} rol</div>
-    <div class="rtags">${roleHtml}</div>`;
+    <div class="info-side" id="info-side-${id}">
+      <div class="is-hd">Layihə məlumatları</div>
+      <div class="is-row">
+        <span class="is-lbl">Başlanma tarixi</span>
+        <span class="is-val">${proj.start||'—'}</span>
+      </div>
+      <div class="is-row">
+        <span class="is-lbl">Son tarix (deadline)</span>
+        <span class="is-val">${proj.deadline||'—'}</span>
+      </div>
+      ${hasFT
+        ? `<div class="is-row">
+            <span class="is-lbl">FT təsdiq son tarixi</span>
+            <span class="is-val">${proj.ftDeadline||'—'}</span>
+           </div>`
+        : `<div class="is-badge">FT — hazırlanır</div>`}
+      <div style="flex:1"></div>
+      <button class="is-nav" onclick="if(window._protoUrl_${id}) window.open(window._protoUrl_${id})" title="Prototipə keçid">
+        ⧉ Prototip
+      </button>
+      <button class="is-nav" onclick="applyHover('${id}')" title="Rol axını xətlərini göstər">
+        ${netIcon} Axın
+      </button>
+    </div>`;
 }
 
 function selectRole(rid){
@@ -843,7 +971,12 @@ function selectRole(rid){
   const r=getRoleById(rid);
   clearRoleBtns();
   const btn=document.querySelector(`.role-btn[data-rid="${rid}"]`);
-  if(btn){btn.classList.add('active');btn.style.background=r.fill;btn.style.borderColor=r.color;btn.style.color=r.text;}
+  if(btn){
+    btn.classList.add('active');
+    btn.style.background=r.fill; btn.style.borderColor=r.color; btn.style.color=r.text;
+    const pill=btn.querySelector('.rcode-pill');
+    if(pill){pill.style.background=r.color;pill.style.color='#fff';pill.style.border='none';}
+  }
   document.querySelectorAll('.node-g').forEach(el=>{
     const sid=el.dataset.id;
     const acc=ACCESS[sid]&&ACCESS[sid][rid];
@@ -864,25 +997,28 @@ function selectRole(rid){
   const sysHtml=sysList.map(s=>{
     const acc=ACCESS[s.id][rid];
     const cl=COLORS[s.color];
-    return `<span class="rtag" style="background:${cl.fill};color:${cl.text};
-      display:inline-flex;align-items:center;gap:5px;margin:3px 4px;padding:5px 11px;
-      border-radius:10px;border:1px solid ${cl.stroke}40">
-      <span style="font-weight:700;font-size:12.5px">${s.lines[0]}</span>
-      <span style="font-size:11px;background:#EEEAFF;color:#4A3DB8;border-radius:4px;
-        padding:1px 7px;font-family:monospace;font-weight:800">${acc}</span>
-      <span style="font-size:11px;opacity:.75">${ALABEL[acc]||acc}</span>
-    </span>`;
+    return `<div class="rsys-card" style="background:${cl.fill};border-color:${cl.stroke}30"
+        onclick="selectSystem('${s.id}')">
+      <span class="rsys-name" style="color:${cl.text}">${s.lines[0]}</span>
+      <span class="rsys-acc" style="background:${r.color}" title="${ALABEL[acc]||acc}">${acc}</span>
+    </div>`;
   }).join('');
   infoEl.innerHTML=`
-    <strong style="font-size:16px;font-weight:800;color:${r.color};display:block;margin-bottom:6px">
-      ${r.code} — ${r.label}</strong>
-    <div style="font-size:13.5px;color:#555;line-height:1.65;margin-bottom:10px;
-      padding-bottom:10px;border-bottom:1px solid #eee">${r.desc}</div>
-    <div style="font-size:11px;font-weight:800;color:#aaa;letter-spacing:.7px;text-transform:uppercase;
-      margin-bottom:6px">Əlçatanlığı olan sistemlər — ${sysList.length} sistem</div>
-    <div class="rtags">${sysHtml}</div>
-    <div style="font-size:11px;color:#bbb;margin-top:10px;border-top:1px solid #f5f5f5;padding-top:6px">
-      Başqa bir rol seçin — müqayisə edin · Boş yerə basın — sıfırlayın</div>`;
+    <div class="info-main">
+      <div class="role-header">
+        <div class="role-code-block" style="background:${r.fill};border-color:${r.color};color:${r.text}">
+          <span class="rc-code">${r.code}</span>
+          <span class="rc-cnt">${sysList.length} sistem</span>
+        </div>
+        <div class="role-meta">
+          <div class="rm-name" style="color:${r.color}">${r.label}</div>
+          <div class="rm-desc">${r.desc}</div>
+        </div>
+      </div>
+      <div style="font-size:10.5px;font-weight:800;color:#aaa;letter-spacing:.7px;
+        text-transform:uppercase;margin-bottom:8px">Əlçatanlığı olan sistemlər</div>
+      <div class="role-sys-grid">${sysHtml}</div>
+    </div>`;
 }
 
 // Build nodes with hover
@@ -1035,9 +1171,11 @@ function mkActBtn(label,tooltip,onclick,color){
 
 function buildMatrix(){
   const tbl=document.getElementById('mtbl'); tbl.innerHTML='';
+  const thead=document.createElement('thead');
   const tr0=document.createElement('tr');
   const th0=document.createElement('th');
-  th0.textContent='Sistem / Rol';th0.style.textAlign='left';th0.style.minWidth='165px';
+  th0.textContent='Sistem / Rol';
+  th0.style.cssText='text-align:left;min-width:185px;position:sticky;top:0;left:0;z-index:3;background:#F3F5FA;';
   tr0.appendChild(th0);
   ROLES.forEach(r=>{
     const th=document.createElement('th');
@@ -1047,7 +1185,8 @@ function buildMatrix(){
         min-width:56px;line-height:1.2">${r.label}</div>`;
     tr0.appendChild(th);
   });
-  tbl.appendChild(tr0);
+  thead.appendChild(tr0);
+  tbl.appendChild(thead);
   const tbody=document.createElement('tbody');
   tbl.appendChild(tbody);
   const cats=[
@@ -1072,6 +1211,7 @@ function buildMatrix(){
       // Main row
       const tr=document.createElement('tr');
       tr.style.cursor='pointer';
+      tr.dataset.sid=sid;
       const tdN=document.createElement('td');
       tdN.className='rh'; tdN.style.borderLeft=`4px solid ${cl.stroke}`;
       tdN.title=SYSDESC[sid]||s.label;
@@ -1116,7 +1256,12 @@ function buildMatrix(){
         nameSpan.textContent=cs.lines[0];
         nameSpan.title=SYSDESC[cs.id]||cs.label;
         nameSpan.style.color=cc.text;
-        nameSpan.addEventListener('click',e=>{e.stopPropagation();selectSystem(cs.id);});
+        nameSpan.addEventListener('click',e=>{
+          e.stopPropagation();
+          document.querySelectorAll('#mtbl .sub-item.active').forEach(el=>el.classList.remove('active'));
+          item.classList.add('active');
+          selectSystem(cs.id);
+        });
 
         item.appendChild(nameSpan);
         grid.appendChild(item);
@@ -1130,10 +1275,17 @@ function buildMatrix(){
       tr.addEventListener('click',()=>{
         if(openDetTr && openDetTr!==detTr){
           openDetTr.style.display='none';
+          openDetTr._parentTr&&openDetTr._parentTr.classList.remove('mat-active');
         }
         const isOpen=detTr.style.display!=='none';
         detTr.style.display=isOpen?'none':'';
-        if(!isOpen) openDetTr=detTr; else openDetTr=null;
+        document.querySelectorAll('#mtbl .sub-item.active').forEach(el=>el.classList.remove('active'));
+        if(!isOpen){
+          openDetTr=detTr; detTr._parentTr=tr;
+          tr.classList.add('mat-active');
+        } else {
+          openDetTr=null; tr.classList.remove('mat-active');
+        }
         tdN.querySelector('span:last-child').textContent=isOpen?'▾':'▴';
       });
 
