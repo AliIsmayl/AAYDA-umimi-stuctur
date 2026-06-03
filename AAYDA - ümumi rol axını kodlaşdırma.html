@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAYDA — Ümumi Rol Axını Kodlaşdırması</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#F0F2F7;min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;padding:24px 16px;}
+h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:center}
+.subtitle{font-size:13px;color:#888;margin-bottom:14px;text-align:center}
+/* ── Top control bar ── */
+#top-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;
+  justify-content:center;width:100%;max-width:1300px;align-items:center;}
+.vbtn{border:2px solid #C5C9D6;background:#F5F6FA;border-radius:6px;
+  padding:8px 16px;cursor:pointer;font-size:15px;line-height:1;font-family:inherit;
+  font-weight:600;color:#555;transition:border-color .12s,background .12s;}
+.vbtn.active{border-color:#7C6EF5;background:#EEEAFF;color:#4A3DB8;}
+.vbtn:not(.active):hover{border-color:#C5C9D6;background:#F5F6FA;cursor:pointer;}
+.cs-toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;
+  color:#555;background:#fff;border:2px solid #E0E4EC;border-radius:6px;
+  padding:7px 14px;cursor:pointer;font-family:inherit;transition:border-color .12s,background .12s;}
+.cs-toggle.open{border-color:#7C6EF5;background:#EEEAFF;color:#4A3DB8;}
+.cs-toggle:hover{border-color:#aaa;}
+.cs-arr{font-size:10px;transition:transform .15s;}
+.cs-toggle.open .cs-arr{transform:rotate(180deg);}
+/* ── Collapsible panels ── */
+.cs-panel{display:none;flex-wrap:wrap;gap:7px;justify-content:center;
+  margin-bottom:10px;width:100%;max-width:1300px;padding:11px 14px;
+  background:#fff;border:2px solid #E0E4EC;border-radius:8px;}
+.cs-panel.open{display:flex;}
+/* ── Role buttons ── */
+.role-btn{display:flex;align-items:center;gap:7px;font-size:13px;color:#333;
+  background:#fff;border:2px solid #E0E4EC;border-radius:6px;padding:8px 16px;
+  cursor:pointer;font-family:inherit;transition:border-color .12s,background .12s;}
+.role-btn.active{font-weight:700;}
+.role-btn:not(.active){cursor:pointer;}
+.role-btn:not(.active):hover{border-color:#E0E4EC;background:#fff;box-shadow:none;}
+.rdot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.rcode-badge{font-size:11px;font-weight:800;background:rgba(0,0,0,.08);
+  border-radius:4px;padding:2px 6px;font-family:monospace;}
+/* ── Connection legend ── */
+.cl{font-size:13px;color:#333;background:#fff;border:2px solid #E0E4EC;
+  border-radius:6px;padding:7px 14px;display:flex;align-items:center;gap:8px;}
+.cl-line{width:26px;height:3px;border-radius:2px;flex-shrink:0;}
+/* ── Access code buttons ── */
+.aci{display:inline-flex;align-items:center;gap:7px;background:#EEEAFF;
+  border:2px solid #C4BAF5;border-radius:6px;padding:7px 14px;cursor:default;}
+.aci b{font-size:13px;font-weight:800;font-family:monospace;color:#4A3DB8;}
+.aci-lbl{font-size:12px;font-weight:500;color:#5B48C0;font-family:'Segoe UI',sans-serif;}
+/* ── Matrix cell ── */
+.mc{border-radius:5px;padding:3px 8px;display:inline-block;font-size:12px;
+  font-weight:800;font-family:monospace;}
+/* ── Info action buttons ── */
+.iact-bar{display:flex;gap:6px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #eee;flex-wrap:wrap;}
+.iact{font-size:12px;font-weight:700;background:#F3F4FA;border:2px solid #D0D4E0;
+  border-radius:6px;padding:5px 11px;cursor:pointer;color:#555;font-family:inherit;
+  transition:background .1s,border-color .1s;}
+.iact:hover{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;}
+.iact.marked{background:#D1FAE5;border-color:#047857;color:#047857;}
+/* ── Submenu grid ── */
+.sub-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:10px 12px;}
+.sub-item{display:flex;align-items:center;justify-content:space-between;gap:6px;
+  background:#fff;border:1.5px solid #E0E4EC;border-radius:6px;padding:5px 8px;
+  font-size:12px;transition:border-color .1s;}
+.sub-item:hover{border-color:#aaa;}
+.sub-name{font-weight:600;color:#333;font-size:12px;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;flex:1;cursor:pointer;}
+.sub-name:hover{color:#7C6EF5;}
+.sub-btns{display:flex;gap:3px;flex-shrink:0;}
+.sb{font-size:10px;font-weight:700;background:#F3F4FA;border:1.5px solid #D0D4E0;
+  border-radius:4px;padding:2px 5px;cursor:pointer;color:#555;font-family:monospace;
+  line-height:1.4;transition:all .1s;}
+.sb:hover{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;}
+.sb.sb-chk.checked{background:#D1FAE5;border-color:#047857;color:#047857;}
+#info{min-height:68px;padding:18px 24px;margin-bottom:14px;border-radius:14px;
+  background:#fff;font-size:14px;line-height:1.8;color:#444;border:1.5px solid #E0E4EC;
+  width:100%;max-width:1300px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+#info strong{color:#111;font-weight:700;font-size:16px;display:block;margin-bottom:5px}
+.rtags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;border-top:1px solid #eee;padding-top:8px;}
+.rtag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;border-radius:8px;
+  padding:5px 12px;font-weight:500;}
+.rtag .rc{font-size:10.5px;font-weight:800;font-family:monospace;background:rgba(0,0,0,.12);
+  border-radius:4px;padding:2px 5px;}
+.rtag .al{font-size:10.5px;font-weight:700;font-family:monospace;background:rgba(0,0,0,.08);
+  border-radius:4px;padding:2px 6px;color:#333;}
+#canvas-wrap{background:#fff;border-radius:20px;border:1.5px solid #E0E4EC;
+  box-shadow:0 2px 12px rgba(0,0,0,.07);width:100%;max-width:1300px;overflow:auto;
+  display:flex;justify-content:center;}
+#matrix-wrap{display:none;width:100%;max-width:1300px;background:#fff;border-radius:20px;
+  border:1.5px solid #E0E4EC;box-shadow:0 2px 12px rgba(0,0,0,.07);
+  overflow:auto;max-height:72vh;}
+#mtbl{border-collapse:collapse;width:100%;}
+#mtbl th{background:#F3F5FA;font-weight:700;font-size:13px;border:1px solid #DDE1EA;
+  padding:11px 8px;text-align:center;position:sticky;top:0;z-index:2;white-space:nowrap;}
+#mtbl .rh{text-align:left;font-size:13px;font-weight:600;border:1px solid #DDE1EA;
+  padding:9px 16px;position:sticky;left:0;background:#fff;z-index:1;
+  min-width:185px;white-space:nowrap;transition:background .12s;}
+#mtbl td{border:1px solid #DDE1EA;padding:7px 8px;text-align:center;font-size:13px;
+  transition:background .12s;}
+#mtbl tbody tr:hover td,#mtbl tbody tr:hover .rh{background:#EEF2FF!important;cursor:pointer;}
+.mc{border-radius:6px;padding:4px 9px;display:inline-block;font-size:12px;
+  font-weight:800;font-family:monospace;}
+svg text{font-family:'Segoe UI',system-ui,sans-serif;pointer-events:none}
+.node-g{cursor:pointer}
+.conn-line{transition:opacity .12s,stroke-width .12s}
+/* Node tooltip popup */
+#node-tt{position:fixed;z-index:9999;background:#fff;border:1.5px solid #E0E4EC;
+  border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.14);padding:14px 18px;
+  max-width:400px;min-width:260px;display:none;pointer-events:none;
+  font-family:'Segoe UI',system-ui,sans-serif;}
+#node-tt .tt-title{font-weight:700;font-size:14px;color:#1a1a2e;margin-bottom:9px;
+  border-bottom:1px solid #eee;padding-bottom:7px;}
+#node-tt .tt-section{font-size:10.5px;font-weight:800;color:#aaa;letter-spacing:.8px;
+  text-transform:uppercase;margin-top:9px;margin-bottom:4px;}
+#node-tt .tt-item{color:#333;padding:3px 0;display:flex;align-items:center;gap:7px;font-size:12.5px;}
+#node-tt .tt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+#node-tt .tt-more{color:#bbb;font-size:11.5px;font-style:italic;padding:2px 0;}
+footer{margin-top:18px;font-size:12px;color:#bbb;text-align:center}
+</style>
+</head>
+<body>
+<h1>AAYDA — Sistemlər üzrə Rol Axını Kodlaşdırması</h1>
+<p class="subtitle">Sistemə toxunun — əlaqəli xətlər görünəcək · Rol seçin — giriş xəritəsi · Boş yerə basın — sıfırlayın</p>
+
+<div id="top-bar">
+  <button class="vbtn active" id="btn-col" onclick="setView('col')">⊞ Sütun</button>
+  <button class="vbtn" id="btn-rad" onclick="setView('rad')">◎ Halqa</button>
+  <button class="vbtn" id="btn-mat" onclick="setView('mat')">⊟ Cədvəl</button>
+  <span style="width:1px;height:28px;background:#E0E4EC;margin:0 4px;display:inline-block"></span>
+  <button class="cs-toggle" data-panel="roles" onclick="togglePanel('roles')">Rollar <span class="cs-arr">▾</span></button>
+  <button class="cs-toggle" data-panel="conns" onclick="togglePanel('conns')">Əlaqə növləri <span class="cs-arr">▾</span></button>
+  <button class="cs-toggle" data-panel="acodes" onclick="togglePanel('acodes')">Giriş kodları <span class="cs-arr">▾</span></button>
+</div>
+
+<div id="panel-roles" class="cs-panel"><!-- role buttons added by JS --></div>
+
+<div id="panel-conns" class="cs-panel">
+  <div class="cl"><div class="cl-line" style="background:#7C6EF5"></div>MEİS — Vahid Giriş</div>
+  <div class="cl"><div class="cl-line" style="background:#16A97A"></div>Texnoloji Platforma inteqrasiyası</div>
+  <div class="cl"><div class="cl-line" style="background:#E05A2B"></div>Korporativ → Əməliyyat</div>
+  <div class="cl"><div class="cl-line" style="background:#D4960A"></div>Əməliyyat → Reyestr</div>
+  <div class="cl"><div class="cl-line" style="background:#A855C8"></div>Reyestr ↔ Korporativ/Əməliyyat</div>
+  <div class="cl"><div class="cl-line" style="background:#2D8FE0"></div>Vətəndaş İnterfeysi inteqrasiyası</div>
+</div>
+
+<div id="panel-acodes" class="cs-panel">
+  <div class="aci"><b>İ</b><span class="aci-lbl">İdarəetmə — Tam texniki nəzarət, konfiqurasiya, istifadəçi idarəetməsi</span></div>
+  <div class="aci"><b>O</b><span class="aci-lbl">Oxuma — Yalnız baxış hüququ, ixrac, lakin dəyişdirə bilməmək</span></div>
+  <div class="aci"><b>Y</b><span class="aci-lbl">Yazma — Yeni qeydlər yaratmaq, mövcud məlumatları redaktə etmək</span></div>
+  <div class="aci"><b>T</b><span class="aci-lbl">Təsdiq — Sənəd/prosesləri rəsmi təsdiqləmək, elektron imzalamaq</span></div>
+  <div class="aci"><b>Ə</b><span class="aci-lbl">Əməliyyat — Birbaşa sistem əməliyyatlarını icra etmək</span></div>
+  <div class="aci"><b>OY</b><span class="aci-lbl">Oxuma + Yazma — Məlumatları həm oxumaq, həm yaratmaq/redaktə etmək</span></div>
+  <div class="aci"><b>OT</b><span class="aci-lbl">Oxuma + Təsdiq — Oxumaq və rəsmi təsdiq/imza vermək</span></div>
+  <div class="aci"><b>OYT</b><span class="aci-lbl">Oxuma + Yazma + Təsdiq — Tam işlək giriş: oxuma, yazma və rəsmi təsdiqləmə</span></div>
+</div>
+
+<div id="info">Sistemin üzərinə toxunun — əlaqəli xətlər və rol cədvəli görünəcək</div>
+
+<div id="canvas-wrap">
+<svg id="svg" width="1300" height="645" viewBox="0 0 1300 645">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5"
+    markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+    <path d="M2 2L8 5L2 8" fill="none" stroke="context-stroke"
+      stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+<rect class="zone-bg" x="14" y="12" width="175" height="62" rx="14"
+  fill="#EEEAFF" stroke="#7C6EF5" stroke-width="1.2" stroke-dasharray="5,4"/>
+<rect class="zone-bg" x="14" y="88" width="175" height="537" rx="14"
+  fill="#EEF9F4" stroke="#16A97A" stroke-width="1" stroke-dasharray="5,4"/>
+<text class="zone-bg" x="101" y="106" text-anchor="middle" font-size="11"
+  font-weight="700" fill="#16A97A" letter-spacing="1">TEXNOLOJI PLATFORMA</text>
+<rect class="zone-bg" x="203" y="12" width="175" height="613" rx="14"
+  fill="#FEF3EE" stroke="#E05A2B" stroke-width="1" stroke-dasharray="5,4"/>
+<text class="zone-bg" x="290" y="30" text-anchor="middle" font-size="11"
+  font-weight="700" fill="#E05A2B" letter-spacing="1">KORPORATİV İDARƏETMƏ</text>
+<rect class="zone-bg" x="392" y="12" width="175" height="613" rx="14"
+  fill="#F8F0FF" stroke="#A855C8" stroke-width="1" stroke-dasharray="5,4"/>
+<text class="zone-bg" x="479" y="30" text-anchor="middle" font-size="11"
+  font-weight="700" fill="#A855C8" letter-spacing="1">REYESTR</text>
+<rect class="zone-bg" x="581" y="12" width="430" height="613" rx="14"
+  fill="#FEFBEE" stroke="#D4960A" stroke-width="1" stroke-dasharray="5,4"/>
+<text class="zone-bg" x="796" y="30" text-anchor="middle" font-size="11"
+  font-weight="700" fill="#D4960A" letter-spacing="1">ƏMƏLİYYAT SİSTEMLƏRİ</text>
+<rect class="zone-bg" x="1025" y="12" width="262" height="613" rx="14"
+  fill="#EEF6FF" stroke="#2D8FE0" stroke-width="1" stroke-dasharray="5,4"/>
+<text class="zone-bg" x="1156" y="30" text-anchor="middle" font-size="11"
+  font-weight="700" fill="#2D8FE0" letter-spacing="1">VƏTƏNDAŞ İNTERFEYSİ</text>
+<g id="rings"></g>
+<g id="connections"></g>
+<g id="nodes"></g>
+</svg>
+</div>
+
+<div id="matrix-wrap"><table id="mtbl"></table></div>
+<div id="node-tt"></div>
+<footer>HTML faylını brauzerinizdə açın — internet bağlantısı tələb olunmur</footer>
+
+<script>
+const COLORS={
+  meis:   {fill:'#EEEAFF',stroke:'#7C6EF5',text:'#4A3DB8'},
+  tech:   {fill:'#E2F8EF',stroke:'#16A97A',text:'#0A5C3F'},
+  corp:   {fill:'#FDEDE5',stroke:'#E05A2B',text:'#842010'},
+  reg:    {fill:'#F4E6FF',stroke:'#A855C8',text:'#5C2475'},
+  ops:    {fill:'#FDF5DC',stroke:'#D4960A',text:'#6B4400'},
+  citizen:{fill:'#E4F2FF',stroke:'#2D8FE0',text:'#0A3E72'}
+};
+
+const typeStyle={
+  meis:    {stroke:'#7C6EF5',width:0.7,dash:'6,3'},
+  tech:    {stroke:'#16A97A',width:0.6,dash:'6,3'},
+  corp2ops:{stroke:'#E05A2B',width:0.6,dash:'4,3'},
+  ops2reg: {stroke:'#D4960A',width:0.6,dash:'3,3'},
+  reg2ops: {stroke:'#A855C8',width:0.6,dash:'5,2'},
+  reg2corp:{stroke:'#A855C8',width:0.6,dash:'4,3'},
+  citizen: {stroke:'#2D8FE0',width:0.6,dash:'3,2'}
+};
+
+const ROLES=[
+  {id:'sia',code:'SİA',label:'Sistem İnzibatçısı',desc:'Sistemə tam texniki giriş: konfiqurasiya, istifadəçi idarəetməsi, dəstək.',color:'#6D28D9',fill:'#EDE9FE',text:'#3B0764'},
+  {id:'rhb',code:'RHB',label:'Rəhbərlik',desc:'Agentlik/şöbə rəhbərliyi: hesabatlar, strateji monitorinq, yekun təsdiq.',color:'#B45309',fill:'#FEF3C7',text:'#78350F'},
+  {id:'shr',code:'ŞRH',label:'Şöbə Rəhbəri',desc:'Struktur bölmə rəhbəri: öz sahəsini yazar, redaktə edər, daxili təsdiq verər.',color:'#B91C1C',fill:'#FEE2E2',text:'#7F1D1D'},
+  {id:'opr',code:'OPR',label:'Operator/Əməkdaş',desc:'Gündəlik əməliyyatlar: məlumat daxiletmə, izləmə, icra.',color:'#047857',fill:'#D1FAE5',text:'#064E3B'},
+  {id:'sho',code:'SHO',label:'Sahə İşçisi',desc:'Sahə inspektoru, briqada: mobil cihazla əməliyyat.',color:'#7C3AED',fill:'#F5F3FF',text:'#4C1D95'},
+  {id:'anl',code:'ANL',label:'Analitik',desc:'Məlumat analizi, hesabat, BI panelləri, statistika.',color:'#1D4ED8',fill:'#DBEAFE',text:'#1E3A8A'},
+  {id:'aud',code:'AUD',label:'Daxili Auditor',desc:'Nəzarət, yoxlama, uyğunluq — yalnız oxuma+qeyd.',color:'#9A3412',fill:'#FFF7ED',text:'#7C2D12'},
+  {id:'vtn',code:'VTN',label:'Vətəndaş',desc:'Son istifadəçi: yalnız ictimai xarici interfeyslərdən istifadə.',color:'#065F46',fill:'#ECFDF5',text:'#064E3B'},
+  {id:'pdr',code:'PDR',label:'Podratçı/Xarici',desc:'Xarici podratçı: müvafiq sistemlərə məhdud giriş.',color:'#92400E',fill:'#FEF9C3',text:'#78350F'},
+];
+
+const NW=155,NH=40;
+const X={meis:101,tech:101,corp:290,reg:479,ops:796,citizen:1156};
+
+const systems=[
+  {id:'meis',      lines:['MEİS'],                                        color:'meis',    x:X.meis,    y:43,
+   label:'MEİS — Mərkəzləşdirilmiş Elektron İnformasiya Sistemi',
+   desc:'Bütün sistemlər üçün vahid istifadəçi idarəetməsi, autentifikasiya, giriş nəzarəti, audit mexanizmləri və köməkçi funksionallıqları özündə ehtiva edən mərkəzi platform.'},
+  {id:'api',       lines:['İnteqrasiya','Platforması (API/ESB)'],          color:'tech',    x:X.tech,    y:140,
+   label:'İnteqrasiya Platforması (API/ESB)',
+   desc:'Daxili və xarici sistemlər arasında standartlaşdırılmış, təhlükəsiz məlumat mübadiləsini təmin edən inteqrasiya infrastrukturu.'},
+  {id:'bi',        lines:['Mərkəzi Analitika','(BI Paneli)'],              color:'tech',    x:X.tech,    y:212,
+   label:'Mərkəzi Analitika və İdarəetmə Paneli (BI)',
+   desc:'KPI-lar, analitik hesabatlar, layihə dashboardları — real vaxt rejimində rəhbərlik üçün vizuallaşdırma platforması.'},
+  {id:'dw',        lines:['Məlumat Anbarı','(Data Warehouse)'],            color:'tech',    x:X.tech,    y:284,
+   label:'Məlumat Anbarı (Data Warehouse)',
+   desc:'Müxtəlif mənbələrdən məlumatların inteqrasiyası, tarixçə üzrə saxlanması, analitik emal üçün strukturlaşdırılmış mərkəzi məlumat platforması.'},
+  {id:'notify',    lines:['Bildiriş','Kommunikasiya Xidməti'],             color:'tech',    x:X.tech,    y:356,
+   label:'Bildiriş və Kommunikasiya Xidməti',
+   desc:'SMS, e-mail və digər kanallar vasitəsilə avtomatlaşdırılmış bildirişlər: hadisələr, xəbərdarlıqlar, proses yeniləmələri.'},
+  {id:'storage',   lines:['Fayl və Sənəd','Saxlama Xidməti'],              color:'tech',    x:X.tech,    y:428,
+   label:'Mərkəzləşdirilmiş Fayl və Sənəd Saxlama Xidməti',
+   desc:'Bütün sistemlər üzrə sənədlər, fayllar, media: saxlanma, versiyalaşdırma, API idarəetmə.'},
+  {id:'mobile',    lines:['Mobil Sahə','Əməliyyatları Platforması'],       color:'tech',    x:X.tech,    y:500,
+   label:'Mobil Sahə Əməliyyatları Platforması',
+   desc:'Sahə əməkdaşlarının mobil cihazla məlumat toplaması, tapşırıq icrası, real vaxt sinxronizasiyası.'},
+  {id:'esened',    lines:['eSənəd'],                                       color:'corp',    x:X.corp,    y:60,
+   label:'eSənəd — Elektron Sənəd Dövriyyəsi Sistemi',
+   desc:'Rəsmi sənədlərin yaradılması, razılaşdırılması, elektron imzalanması, dövriyyəsi və arxivləşdirilməsi.'},
+  {id:'halga',     lines:['halga','(CRM / Müraciət / Çağrı)'],            color:'corp',    x:X.corp,    y:130,
+   label:'halga — Vətəndaş Müraciətləri, CRM və Çağrı Mərkəzi',
+   desc:'Vətəndaş müraciətlərinin qəbulu, qeydiyyatı, çağrı mərkəzi funksionallığı ilə genişləndirilmiş CRM sistemi.'},
+  {id:'task',      lines:['Tapşırıqların','İdarəetmə (TİS)'],              color:'corp',    x:X.corp,    y:200,
+   label:'Tapşırıqların İdarəetmə Sistemi (TİS)',
+   desc:'Tapşırıqların planlaşdırılması, məsul şəxslərə yönləndirilməsi, icra statuslarının izlənməsi.'},
+  {id:'hr',        lines:['İnsan Resursları','Sistemi'],                   color:'corp',    x:X.corp,    y:270,
+   label:'İnsan Resursları Sistemi',
+   desc:'Kadr məlumatları, əmək münasibətləri, işçi heyəti planlaşdırılması və performans izlənməsi.'},
+  {id:'arxiv',     lines:['Elektron Arxiv','Sənəd İdarəetmə'],            color:'corp',    x:X.corp,    y:340,
+   label:'Elektron Arxiv və Sənəd İntellektual İdarəetmə Sistemi',
+   desc:'Sənədlərin rəqəmsallaşdırılması, OCR tanıması, avtomatik kateqoriyalaşdırma, semantik axtarış.'},
+  {id:'vasite',    lines:['Əsas Vəsaitlər','və Anbar Sistemi'],           color:'corp',    x:X.corp,    y:410,
+   label:'Əsas Vəsaitlərin və Anbarın İdarəetmə Sistemi',
+   desc:'Avadanlıqlar, materiallar, ehtiyat hissələri: qeydiyyat, anbar yerləşdirməsi, qalıqların real vaxt izlənməsi.'},
+  {id:'budce',     lines:['Büdcə','İnvestisiya Planlaşdırma'],            color:'corp',    x:X.corp,    y:480,
+   label:'Büdcə və İnvestisiya Planlaşdırma Sistemi',
+   desc:'İnvestisiya əsaslandırması, layihə prioritetləşdirilməsi, büdcə bölgüsü, maliyyə planlaşdırması.'},
+  {id:'audit',     lines:['Audit','Uyğunluq Nəzarəti'],                   color:'corp',    x:X.corp,    y:550,
+   label:'Audit və Uyğunluq Nəzarəti Sistemi',
+   desc:'Daxili nəzarət, audit yoxlamaları, normativ tələblərə uyğunluq qiymətləndirməsi, pozuntuların izlənməsi.'},
+  {id:'reyestr',   lines:['Yol Reyestri','Aktivlərin İdarəedilməsi'],     color:'reg',     x:X.reg,     y:310,
+   label:'Yol Reyestri və Aktivlərin İdarəedilməsi Sistemi',
+   desc:'Yollar, seqmentlər, infrastruktur aktivlər üzrə GİS, hüquqi, texniki məlumatların vahid model əsasında mərkəzi qeydiyyatı.'},
+  {id:'toll',      lines:['Ödənişli Yollar','Əməliyyat Platforması'],     color:'ops',     x:X.ops,     y:60,
+   label:'Ödənişli Yollar üzrə Mərkəzi Əməliyyat Platforması',
+   desc:'Tariflər, keçid əməliyyatları, ANPR/LPR kameralar, RFID/ETC, şlaqbaum, pozuntu aşkarlanması, borc uçotu.'},
+  {id:'neqliyyat', lines:['Nəqliyyat','Mexanizmlər Sistemi'],             color:'ops',     x:X.ops-105, y:150,
+   label:'Nəqliyyat və Mexanizmlərin İdarəetmə Sistemi',
+   desc:'Avtonəqliyyat, xüsusi texnika: GPS izlənmə, yanacaq sərfiyyatı, texniki vəziyyət, istifadə intensivliyi.'},
+  {id:'tikinti',   lines:['Layihə Tikinti','Müqavilə Sistemi'],           color:'ops',     x:X.ops+105, y:150,
+   label:'Yol Layihə, Tikinti və Müqavilə İdarəetmə Sistemi',
+   desc:'Layihə planlaşdırması, tikinti idarəetməsi, müəllif/texniki nəzarət, podratçı seçimi, müqavilə icrası.'},
+  {id:'monitorinq',lines:['Yol Monitorinq','və Diaqnostika'],             color:'ops',     x:X.ops-105, y:240,
+   label:'Yol Monitorinq və Diaqnostika Platforması',
+   desc:'Sensorlar, IoT, tərəzilər, video müşahidə: real vaxt toplama, hadisə aşkarlama, texniki vəziyyət monitorinqi.'},
+  {id:'istisman',  lines:['İstismar Təmir','Sahə Əməliyyatları'],         color:'ops',     x:X.ops+105, y:240,
+   label:'Yol İstismar, Təmir və Sahə Əməliyyatları Sistemi',
+   desc:'Nasazlıq qeydiyyatı, prioritetləşdirmə, sahə briqadalarına yönləndirmə, icra nəticələrinin izlənməsi.'},
+  {id:'tehlu',     lines:['Yol Təhlükəsizliyi','Trafik Analitika'],       color:'ops',     x:X.ops-105, y:330,
+   label:'Yol Təhlükəsizliyi və Trafik Analitika Sistemi',
+   desc:'Qəza məlumatları, trafik göstəriciləri, risklərin analizi, təhlükəli sahələrin müəyyənləşdirilməsi.'},
+  {id:'icaze',     lines:['Ağır Nəqliyyat','İcazə Sistemi'],              color:'ops',     x:X.ops+105, y:330,
+   label:'Ağır və İriqabaritli Nəqliyyat İcazə Sistemi',
+   desc:'Normadan artıq çəkili nəqliyyat: marşrut uyğunluğu, yol aktivlərinə təsir analizi, icazə prosesi.'},
+  {id:'komm',      lines:['Kommunikasiya','Keçidləri İcazə'],             color:'ops',     x:X.ops-105, y:420,
+   label:'Kommunikasiya Keçidləri və İcazə İdarəetmə Sistemi',
+   desc:'Yollar üzərindəki mühəndis kommunikasiya xətlərinin planlaşdırılması, razılaşdırılması, icazə verilməsi.'},
+  {id:'yolknar',   lines:['Yolkənarı Xidmət','İnfrastrukturu'],          color:'ops',     x:X.ops+105, y:420,
+   label:'Yolkənarı Xidmət İnfrastrukturu İdarəetmə Sistemi',
+   desc:'Dayanacaqlar, istirahət zonaları, xidmət sahələri: status, istifadə, inkişaf planları, birləşmə texniki şərtlər.'},
+  {id:'torpaq',    lines:['Yol Torpaq Sahəsi','Hüquqi Nəzarət'],         color:'ops',     x:X.ops-105, y:510,
+   label:'Yol Torpaq Sahəsi və Hüquqi Nəzarət Modulu',
+   desc:'Yol torpaq sahələri GİS uçotu, qanunsuz tikililərin foto+geolokasiya ilə aşkarlanması, hüquqi tədbirlərin başlanması.'},
+  {id:'ekologiya', lines:['Yaşıllıq','Ekoloji İdarəetmə'],               color:'ops',     x:X.ops+105, y:510,
+   label:'Yaşıllıq və Ekoloji İdarəetmə Modulu',
+   desc:'Yaşıllıq zolaqları, qoruyucu meşə sahələri: məkan uçotu, yaşıllaşdırma planlaşdırma, bərpa-qulluq izlənməsi.'},
+  {id:'mygov',     lines:['myGOV','Vətəndaş Müraciətləri'],              color:'citizen', x:X.citizen, y:65,
+   label:'myGOV Vətəndaş Müraciətləri eXidməti',
+   desc:'myGOV platforması üzərindən vətəndaş müraciətlərinin qəbulu, İnteqrasiya Platforması vasitəsilə CRM sisteminə ötürülməsi.'},
+  {id:'odenis',    lines:['Ödənişli Yollar','Onlayn Ödəniş'],            color:'citizen', x:X.citizen, y:165,
+   label:'Ödənişli Yollar üzrə Onlayn Ödəniş Xidməti',
+   desc:'Birbank, m10, ABB mobile, AzParking vasitəsilə keçid haqqı hesablanması, elektron ödəniş.'},
+  {id:'xerite',    lines:['İnteraktiv','Yol Xəritəsi'],                   color:'citizen', x:X.citizen, y:265,
+   label:'İctimai İnteraktiv Yol Xəritəsi',
+   desc:'Yol şəbəkəsi, kateqoriyalar, aktivlər, məhdudiyyət məlumatları: vətəndaşlar üçün interaktiv xəritə.'},
+  {id:'mehdudat',  lines:['Yol Məhdudiyyətləri','Məlumat Lövhəsi'],      color:'citizen', x:X.citizen, y:365,
+   label:'Yol Məhdudiyyətləri və Operativ Məlumat Lövhəsi',
+   desc:'Müvəqqəti hərəkət məhdudiyyətləri, bağlanmalar, alternativ istiqamətlər — real vaxt.'},
+  {id:'portal',    lines:['Açıq Məlumat','Hesabat Portalı'],              color:'citizen', x:X.citizen, y:465,
+   label:'Açıq Məlumat və İctimai Hesabat Portalı',
+   desc:'Agentliyin açıq statistikası, layihə statusları, ictimai hesabatlar — inteqrasiya ilə yenilənən portal.'},
+  {id:'chatbot',   lines:['Vətəndaş','AI Chatbot'],                       color:'citizen', x:X.citizen, y:565,
+   label:'Vətəndaş AI Chatbot',
+   desc:'Agentlik xidmətləri, yollar, müraciət prosedurları üzrə süni intellekt əsaslı informasiya komponenti.'},
+];
+
+// 294 connections from Excel
+const connections=[
+  {from:'meis',to:'api',type:'meis'},{from:'meis',to:'bi',type:'meis'},
+  {from:'meis',to:'dw',type:'meis'},{from:'meis',to:'notify',type:'meis'},
+  {from:'meis',to:'storage',type:'meis'},{from:'meis',to:'mobile',type:'meis'},
+  {from:'meis',to:'reyestr',type:'meis'},{from:'meis',to:'esened',type:'meis'},
+  {from:'meis',to:'halga',type:'meis'},{from:'meis',to:'task',type:'meis'},
+  {from:'meis',to:'hr',type:'meis'},{from:'meis',to:'arxiv',type:'meis'},
+  {from:'meis',to:'vasite',type:'meis'},{from:'meis',to:'budce',type:'meis'},
+  {from:'meis',to:'audit',type:'meis'},{from:'meis',to:'toll',type:'meis'},
+  {from:'meis',to:'neqliyyat',type:'meis'},{from:'meis',to:'tikinti',type:'meis'},
+  {from:'meis',to:'monitorinq',type:'meis'},{from:'meis',to:'istisman',type:'meis'},
+  {from:'meis',to:'tehlu',type:'meis'},{from:'meis',to:'icaze',type:'meis'},
+  {from:'meis',to:'komm',type:'meis'},{from:'meis',to:'yolknar',type:'meis'},
+  {from:'meis',to:'torpaq',type:'meis'},{from:'meis',to:'ekologiya',type:'meis'},
+  {from:'api',to:'esened',type:'tech'},{from:'api',to:'halga',type:'tech'},
+  {from:'api',to:'task',type:'tech'},{from:'api',to:'hr',type:'tech'},
+  {from:'api',to:'arxiv',type:'tech'},{from:'api',to:'vasite',type:'tech'},
+  {from:'api',to:'budce',type:'tech'},{from:'api',to:'audit',type:'tech'},
+  {from:'api',to:'reyestr',type:'tech'},{from:'api',to:'toll',type:'tech'},
+  {from:'api',to:'neqliyyat',type:'tech'},{from:'api',to:'tikinti',type:'tech'},
+  {from:'api',to:'monitorinq',type:'tech'},{from:'api',to:'istisman',type:'tech'},
+  {from:'api',to:'tehlu',type:'tech'},{from:'api',to:'icaze',type:'tech'},
+  {from:'api',to:'komm',type:'tech'},{from:'api',to:'yolknar',type:'tech'},
+  {from:'api',to:'torpaq',type:'tech'},{from:'api',to:'ekologiya',type:'tech'},
+  {from:'api',to:'mygov',type:'tech'},{from:'api',to:'odenis',type:'tech'},
+  {from:'api',to:'xerite',type:'tech'},{from:'api',to:'mehdudat',type:'tech'},
+  {from:'api',to:'portal',type:'tech'},{from:'api',to:'chatbot',type:'tech'},
+  {from:'storage',to:'esened',type:'tech'},{from:'storage',to:'arxiv',type:'tech'},
+  {from:'storage',to:'halga',type:'tech'},{from:'storage',to:'task',type:'tech'},
+  {from:'storage',to:'hr',type:'tech'},{from:'storage',to:'vasite',type:'tech'},
+  {from:'storage',to:'budce',type:'tech'},{from:'storage',to:'audit',type:'tech'},
+  {from:'storage',to:'toll',type:'tech'},{from:'storage',to:'neqliyyat',type:'tech'},
+  {from:'storage',to:'tikinti',type:'tech'},{from:'storage',to:'monitorinq',type:'tech'},
+  {from:'storage',to:'istisman',type:'tech'},{from:'storage',to:'tehlu',type:'tech'},
+  {from:'storage',to:'icaze',type:'tech'},{from:'storage',to:'komm',type:'tech'},
+  {from:'storage',to:'yolknar',type:'tech'},{from:'storage',to:'torpaq',type:'tech'},
+  {from:'storage',to:'ekologiya',type:'tech'},{from:'storage',to:'mygov',type:'tech'},
+  {from:'storage',to:'odenis',type:'tech'},{from:'storage',to:'xerite',type:'tech'},
+  {from:'storage',to:'mehdudat',type:'tech'},{from:'storage',to:'portal',type:'tech'},
+  {from:'storage',to:'chatbot',type:'tech'},
+  {from:'notify',to:'halga',type:'tech'},{from:'notify',to:'task',type:'tech'},
+  {from:'notify',to:'reyestr',type:'tech'},{from:'notify',to:'esened',type:'tech'},
+  {from:'notify',to:'hr',type:'tech'},{from:'notify',to:'arxiv',type:'tech'},
+  {from:'notify',to:'vasite',type:'tech'},{from:'notify',to:'budce',type:'tech'},
+  {from:'notify',to:'audit',type:'tech'},{from:'notify',to:'toll',type:'tech'},
+  {from:'notify',to:'neqliyyat',type:'tech'},{from:'notify',to:'tikinti',type:'tech'},
+  {from:'notify',to:'monitorinq',type:'tech'},{from:'notify',to:'istisman',type:'tech'},
+  {from:'notify',to:'tehlu',type:'tech'},{from:'notify',to:'icaze',type:'tech'},
+  {from:'notify',to:'komm',type:'tech'},{from:'notify',to:'yolknar',type:'tech'},
+  {from:'notify',to:'torpaq',type:'tech'},{from:'notify',to:'ekologiya',type:'tech'},
+  {from:'notify',to:'mygov',type:'tech'},{from:'notify',to:'odenis',type:'tech'},
+  {from:'notify',to:'xerite',type:'tech'},{from:'notify',to:'mehdudat',type:'tech'},
+  {from:'notify',to:'portal',type:'tech'},{from:'notify',to:'chatbot',type:'tech'},
+  {from:'mobile',to:'monitorinq',type:'tech'},{from:'mobile',to:'istisman',type:'tech'},
+  {from:'mobile',to:'esened',type:'tech'},{from:'mobile',to:'halga',type:'tech'},
+  {from:'mobile',to:'task',type:'tech'},{from:'mobile',to:'hr',type:'tech'},
+  {from:'mobile',to:'arxiv',type:'tech'},{from:'mobile',to:'vasite',type:'tech'},
+  {from:'mobile',to:'budce',type:'tech'},{from:'mobile',to:'audit',type:'tech'},
+  {from:'mobile',to:'reyestr',type:'tech'},{from:'mobile',to:'toll',type:'tech'},
+  {from:'mobile',to:'neqliyyat',type:'tech'},{from:'mobile',to:'tikinti',type:'tech'},
+  {from:'mobile',to:'tehlu',type:'tech'},{from:'mobile',to:'icaze',type:'tech'},
+  {from:'mobile',to:'komm',type:'tech'},{from:'mobile',to:'yolknar',type:'tech'},
+  {from:'mobile',to:'torpaq',type:'tech'},{from:'mobile',to:'ekologiya',type:'tech'},
+  {from:'mobile',to:'mygov',type:'tech'},{from:'mobile',to:'odenis',type:'tech'},
+  {from:'mobile',to:'xerite',type:'tech'},{from:'mobile',to:'mehdudat',type:'tech'},
+  {from:'mobile',to:'portal',type:'tech'},{from:'mobile',to:'chatbot',type:'tech'},
+  {from:'dw',to:'esened',type:'tech'},{from:'dw',to:'halga',type:'tech'},
+  {from:'dw',to:'task',type:'tech'},{from:'dw',to:'hr',type:'tech'},
+  {from:'dw',to:'arxiv',type:'tech'},{from:'dw',to:'vasite',type:'tech'},
+  {from:'dw',to:'budce',type:'tech'},{from:'dw',to:'audit',type:'tech'},
+  {from:'dw',to:'toll',type:'tech'},{from:'dw',to:'neqliyyat',type:'tech'},
+  {from:'dw',to:'tikinti',type:'tech'},{from:'dw',to:'monitorinq',type:'tech'},
+  {from:'dw',to:'istisman',type:'tech'},{from:'dw',to:'icaze',type:'tech'},
+  {from:'dw',to:'komm',type:'tech'},{from:'dw',to:'yolknar',type:'tech'},
+  {from:'dw',to:'torpaq',type:'tech'},{from:'dw',to:'ekologiya',type:'tech'},
+  {from:'dw',to:'mygov',type:'tech'},{from:'dw',to:'odenis',type:'tech'},
+  {from:'dw',to:'xerite',type:'tech'},{from:'dw',to:'mehdudat',type:'tech'},
+  {from:'dw',to:'portal',type:'tech'},{from:'dw',to:'chatbot',type:'tech'},
+  {from:'dw',to:'bi',type:'tech'},{from:'dw',to:'reyestr',type:'tech'},
+  {from:'dw',to:'tehlu',type:'tech'},
+  {from:'bi',to:'esened',type:'tech'},{from:'bi',to:'halga',type:'tech'},
+  {from:'bi',to:'task',type:'tech'},{from:'bi',to:'hr',type:'tech'},
+  {from:'bi',to:'arxiv',type:'tech'},{from:'bi',to:'vasite',type:'tech'},
+  {from:'bi',to:'budce',type:'tech'},{from:'bi',to:'audit',type:'tech'},
+  {from:'bi',to:'reyestr',type:'tech'},{from:'bi',to:'toll',type:'tech'},
+  {from:'bi',to:'neqliyyat',type:'tech'},{from:'bi',to:'tikinti',type:'tech'},
+  {from:'bi',to:'monitorinq',type:'tech'},{from:'bi',to:'istisman',type:'tech'},
+  {from:'bi',to:'tehlu',type:'tech'},{from:'bi',to:'icaze',type:'tech'},
+  {from:'bi',to:'komm',type:'tech'},{from:'bi',to:'yolknar',type:'tech'},
+  {from:'bi',to:'torpaq',type:'tech'},{from:'bi',to:'ekologiya',type:'tech'},
+  {from:'bi',to:'mygov',type:'tech'},{from:'bi',to:'odenis',type:'tech'},
+  {from:'bi',to:'xerite',type:'tech'},{from:'bi',to:'mehdudat',type:'tech'},
+  {from:'bi',to:'portal',type:'tech'},{from:'bi',to:'chatbot',type:'tech'},
+  {from:'hr',to:'reyestr',type:'reg2corp'},
+  {from:'vasite',to:'neqliyyat',type:'corp2ops'},{from:'vasite',to:'istisman',type:'corp2ops'},
+  {from:'budce',to:'tikinti',type:'corp2ops'},{from:'budce',to:'vasite',type:'reg2corp'},
+  {from:'audit',to:'tikinti',type:'corp2ops'},{from:'audit',to:'toll',type:'corp2ops'},
+  {from:'audit',to:'neqliyyat',type:'corp2ops'},{from:'audit',to:'monitorinq',type:'corp2ops'},
+  {from:'audit',to:'istisman',type:'corp2ops'},{from:'audit',to:'tehlu',type:'corp2ops'},
+  {from:'audit',to:'icaze',type:'corp2ops'},{from:'audit',to:'komm',type:'corp2ops'},
+  {from:'audit',to:'yolknar',type:'corp2ops'},{from:'audit',to:'torpaq',type:'corp2ops'},
+  {from:'audit',to:'ekologiya',type:'corp2ops'},{from:'audit',to:'chatbot',type:'citizen'},
+  {from:'audit',to:'portal',type:'citizen'},{from:'audit',to:'mehdudat',type:'citizen'},
+  {from:'audit',to:'odenis',type:'citizen'},
+  {from:'esened',to:'tikinti',type:'corp2ops'},
+  {from:'arxiv',to:'toll',type:'corp2ops'},{from:'arxiv',to:'neqliyyat',type:'corp2ops'},
+  {from:'arxiv',to:'tikinti',type:'corp2ops'},{from:'arxiv',to:'monitorinq',type:'corp2ops'},
+  {from:'arxiv',to:'istisman',type:'corp2ops'},{from:'arxiv',to:'tehlu',type:'corp2ops'},
+  {from:'arxiv',to:'icaze',type:'corp2ops'},{from:'arxiv',to:'komm',type:'corp2ops'},
+  {from:'arxiv',to:'yolknar',type:'corp2ops'},{from:'arxiv',to:'torpaq',type:'corp2ops'},
+  {from:'arxiv',to:'ekologiya',type:'corp2ops'},{from:'arxiv',to:'mygov',type:'citizen'},
+  {from:'arxiv',to:'odenis',type:'citizen'},{from:'arxiv',to:'xerite',type:'citizen'},
+  {from:'arxiv',to:'mehdudat',type:'citizen'},{from:'arxiv',to:'portal',type:'citizen'},
+  {from:'arxiv',to:'chatbot',type:'citizen'},
+  {from:'reyestr',to:'esened',type:'reg2corp'},{from:'reyestr',to:'task',type:'reg2corp'},
+  {from:'reyestr',to:'arxiv',type:'reg2corp'},{from:'reyestr',to:'vasite',type:'reg2corp'},
+  {from:'reyestr',to:'budce',type:'reg2corp'},{from:'reyestr',to:'audit',type:'reg2corp'},
+  {from:'monitorinq',to:'reyestr',type:'ops2reg'},{from:'tikinti',to:'reyestr',type:'ops2reg'},
+  {from:'istisman',to:'reyestr',type:'ops2reg'},{from:'toll',to:'reyestr',type:'ops2reg'},
+  {from:'torpaq',to:'reyestr',type:'ops2reg'},{from:'ekologiya',to:'reyestr',type:'ops2reg'},
+  {from:'yolknar',to:'reyestr',type:'ops2reg'},{from:'icaze',to:'reyestr',type:'ops2reg'},
+  {from:'komm',to:'reyestr',type:'ops2reg'},
+  {from:'reyestr',to:'istisman',type:'reg2ops'},{from:'reyestr',to:'tehlu',type:'reg2ops'},
+  {from:'reyestr',to:'monitorinq',type:'reg2ops'},{from:'reyestr',to:'torpaq',type:'reg2ops'},
+  {from:'reyestr',to:'ekologiya',type:'reg2ops'},{from:'reyestr',to:'icaze',type:'reg2ops'},
+  {from:'reyestr',to:'komm',type:'reg2ops'},{from:'reyestr',to:'yolknar',type:'reg2ops'},
+  {from:'reyestr',to:'neqliyyat',type:'reg2ops'},
+  {from:'monitorinq',to:'dw',type:'ops2reg'},{from:'istisman',to:'dw',type:'ops2reg'},
+  {from:'tikinti',to:'dw',type:'ops2reg'},{from:'toll',to:'dw',type:'ops2reg'},
+  {from:'neqliyyat',to:'dw',type:'ops2reg'},
+  {from:'esened',to:'icaze',type:'corp2ops'},{from:'esened',to:'komm',type:'corp2ops'},
+  {from:'esened',to:'torpaq',type:'corp2ops'},{from:'esened',to:'tehlu',type:'corp2ops'},
+  {from:'halga',to:'esened',type:'corp2ops'},{from:'halga',to:'odenis',type:'citizen'},
+  {from:'halga',to:'portal',type:'citizen'},
+  {from:'mygov',to:'halga',type:'citizen'},{from:'mygov',to:'monitorinq',type:'citizen'},
+  {from:'mygov',to:'toll',type:'citizen'},{from:'mygov',to:'neqliyyat',type:'citizen'},
+  {from:'mygov',to:'tikinti',type:'citizen'},{from:'mygov',to:'istisman',type:'citizen'},
+  {from:'mygov',to:'tehlu',type:'citizen'},{from:'mygov',to:'icaze',type:'citizen'},
+  {from:'mygov',to:'komm',type:'citizen'},{from:'mygov',to:'yolknar',type:'citizen'},
+  {from:'mygov',to:'torpaq',type:'citizen'},{from:'mygov',to:'ekologiya',type:'citizen'},
+  {from:'odenis',to:'toll',type:'citizen'},{from:'odenis',to:'api',type:'citizen'},
+  {from:'odenis',to:'reyestr',type:'citizen'},{from:'odenis',to:'halga',type:'citizen'},
+  {from:'xerite',to:'reyestr',type:'citizen'},{from:'xerite',to:'istisman',type:'citizen'},
+  {from:'xerite',to:'monitorinq',type:'citizen'},{from:'xerite',to:'tehlu',type:'citizen'},
+  {from:'xerite',to:'torpaq',type:'citizen'},{from:'xerite',to:'yolknar',type:'citizen'},
+  {from:'mehdudat',to:'istisman',type:'citizen'},{from:'mehdudat',to:'monitorinq',type:'citizen'},
+  {from:'mehdudat',to:'reyestr',type:'citizen'},{from:'mehdudat',to:'tehlu',type:'citizen'},
+  {from:'mehdudat',to:'toll',type:'citizen'},
+  {from:'portal',to:'bi',type:'citizen'},{from:'portal',to:'reyestr',type:'citizen'},
+  {from:'portal',to:'istisman',type:'citizen'},{from:'portal',to:'monitorinq',type:'citizen'},
+  {from:'portal',to:'tikinti',type:'citizen'},{from:'portal',to:'toll',type:'citizen'},
+  {from:'chatbot',to:'arxiv',type:'citizen'},{from:'chatbot',to:'halga',type:'citizen'},
+  {from:'chatbot',to:'reyestr',type:'citizen'},{from:'chatbot',to:'istisman',type:'citizen'},
+  {from:'chatbot',to:'api',type:'citizen'},
+];
+
+const ACCESS={
+  meis:      {sia:'İ',rhb:'O',shr:'OT',opr:'OY',anl:'O',aud:'O'},
+  api:       {sia:'İ',opr:'Ə'},
+  bi:        {sia:'İ',rhb:'O',shr:'O',anl:'OY',aud:'O'},
+  dw:        {sia:'İ',anl:'OY',aud:'O'},
+  notify:    {sia:'İ',opr:'Ə'},
+  storage:   {sia:'İ',opr:'OY'},
+  mobile:    {sia:'İ',opr:'OY',sho:'Ə'},
+  esened:    {sia:'İ',rhb:'OT',shr:'OYT',opr:'OY',aud:'O'},
+  halga:     {sia:'İ',shr:'O',opr:'OY',vtn:'Ə',aud:'O'},
+  task:      {sia:'İ',rhb:'O',shr:'OT',opr:'OY'},
+  hr:        {sia:'İ',rhb:'O',shr:'OY',opr:'Y',aud:'O'},
+  arxiv:     {sia:'İ',shr:'O',opr:'OY',anl:'O',aud:'O',vtn:'O'},
+  vasite:    {sia:'İ',shr:'OY',opr:'OY',aud:'O'},
+  budce:     {sia:'İ',rhb:'OT',shr:'OY',anl:'O',aud:'O'},
+  audit:     {sia:'İ',aud:'OYT',rhb:'O',shr:'O'},
+  reyestr:   {sia:'İ',shr:'OY',opr:'OY',anl:'O',aud:'O',vtn:'O',pdr:'O'},
+  toll:      {sia:'İ',opr:'OY',sho:'Ə',vtn:'Ə',pdr:'Ə',aud:'O'},
+  neqliyyat: {sia:'İ',shr:'OY',opr:'OY',sho:'Ə',aud:'O'},
+  tikinti:   {sia:'İ',rhb:'O',shr:'OYT',opr:'OY',pdr:'OY',aud:'O'},
+  monitorinq:{sia:'İ',opr:'OY',sho:'Ə',anl:'O'},
+  istisman:  {sia:'İ',shr:'OY',opr:'OY',sho:'Ə',aud:'O'},
+  tehlu:     {sia:'İ',rhb:'O',shr:'O',anl:'OY'},
+  icaze:     {sia:'İ',shr:'OYT',opr:'OY',vtn:'Ə',pdr:'Ə',aud:'O'},
+  komm:      {sia:'İ',shr:'OYT',opr:'OY',pdr:'Ə',aud:'O'},
+  yolknar:   {sia:'İ',shr:'OY',opr:'OY',vtn:'O',aud:'O'},
+  torpaq:    {sia:'İ',shr:'OY',opr:'OY',anl:'O',aud:'O'},
+  ekologiya: {sia:'İ',shr:'OY',opr:'OY',anl:'O',aud:'O'},
+  mygov:     {sia:'İ',vtn:'Ə',opr:'O'},
+  odenis:    {sia:'İ',vtn:'Ə',pdr:'Ə'},
+  xerite:    {sia:'İ',vtn:'O',opr:'O',anl:'O'},
+  mehdudat:  {sia:'İ',vtn:'O',opr:'OY'},
+  portal:    {sia:'İ',vtn:'O',anl:'OY'},
+  chatbot:   {sia:'İ',vtn:'Ə',opr:'O'},
+};
+
+const ALABEL={
+  'İ':'İdarəetmə','O':'Oxuma','Y':'Yazma','T':'Təsdiq','Ə':'Əməliyyat',
+  'OY':'Oxuma+Yazma','OT':'Oxuma+Təsdiq','YT':'Yazma+Təsdiq','OYT':'Oxuma+Yazma+Təsdiq'
+};
+const SYSDESC={
+  meis:"Mərkəzləşdirilmiş Elektron İnformasiya Sistemi. Bütün informasiya sistemləri üçün vahid istifadəçi idarəetməsi, autentifikasiya və giriş nəzarəti, təhlükəsizlik siyasətləri və audit mexanizmlərini təmin edən, təqvim, yardım masası və s. kimi funksionallığı özündə ehtiva edən mərkəzi platformadır.",
+  bi:"Müxtəlif sistemlərdən daxil olan məlumatlar əsasında analitik hesabatların, KPI-ların və idarəetmə panellərinin formalaşdırılmasını təmin edən platformadır. Platforma yol tikintisi və təmiri layihələri üzrə rəhbərlik üçün xüsusi dashboardların yaradılmasını, layihələrin cari vəziyyəti, icra faizləri, gecikmələr, risklər, maliyyə göstəriciləri üzrə vizuallaşdırmalar əmin edir.",
+  api:"Daxili və xarici sistemlər arasında standartlaşdırılmış və təhlükəsiz məlumat mübadiləsini təmin edən inteqrasiya infrastrukturu.",
+  notify:"İstifadəçilərə və maraqlı tərəflərə SMS, e-mail və digər kanallar vasitəsilə avtomatlaşdırılmış bildirişlərin göndərilməsini təmin edən xidmət.",
+  storage:"Bütün sistemlər üzrə sənədlərin, faylların və media məlumatlarının saxlanılmasını, versiyalaşdırılmasını və API vasitəsilə idarə olunmasını təmin edən mərkəzi saxlama xidmətidir.",
+  dw:"Müxtəlif mənbələrdən daxil olan məlumatların inteqrasiyasını, tarixçə üzrə saxlanmasını və analitik emal üçün strukturlaşdırılmış şəkildə təqdim olunmasını təmin edən mərkəzi məlumat platformasıdır.",
+  mobile:"Sahə əməkdaşlarının mobil cihazlar vasitəsilə məlumat toplamasını, tapşırıqları icra etməsini və real vaxt rejimində mərkəzi sistemlərlə sinxron işləməsini təmin edən platformadır.",
+  esened:"Elektron Sənəd Dövriyyəsi Sistemi. Rəsmi sənədlərin yaradılması, razılaşdırılması, imzalanması, dövriyyəsi və arxivləşdirilməsini elektron formada təmin edən sənəd idarəetmə sistemidir.",
+  halga:"Daxili IP telefoniya, vətəndaş müraciətlərinin, şikayət və təkliflərin qəbulu, qeydiyyatı, təsnifləşdirilməsi və icra prosesinin izlənməsini, çağrı mərkəzi funksionallığı ilə birlikdə, daxil olan zənglərin avtomatik qeydiyyatını, zənglərin operatorlar üzrə yönləndirilməsini, müraciətlərin prioritetləşdirilməsini təmin edən sistemdir.",
+  task:"Müxtəlif sistemlər, layihələr və struktur bölmələri üzrə tapşırıqların, fəaliyyətlərin və iş axınlarının planlaşdırılmasını, təyin edilməsini, izlənilməsini və nəzarətini; tapşırıqların prioritetləşdirilməsini, məsul şəxslərə yönləndirilməsini, icra statuslarının izlənilməsini, gecikmələrin aşkarlanmasını təmin edən platformadır.",
+  hr:"Kadr məlumatlarının idarə olunmasını, əmək münasibətlərinin aparılmasını və işçi heyətinin planlaşdırılması və performansının izlənməsini təmin edən sistemdir.",
+  arxiv:"Agentliyin əvvəlki dövrlərə aid kağız və elektron sənədlərinin normativ tələblərə uyğun rəqəmsallaşdırılmasını, uzunmüddətli elektron arxivinin yaradılmasını, OCR vasitəsilə tanınmasını, avtomatik kateqoriyalaşdırılmasını, semantik axtarışını və süni intellekt vasitəsilə kontekstual cavabların formalaşdırılmasını təmin edən sistemdir.",
+  vasite:"Agentliyin maddi-texniki resurslarının, əsas vəsaitlərinin və anbar ehtiyatlarının uçotunu, hərəkətini; avadanlıqların, materialların, ehtiyat hissələrinin qeydiyyatını, anbar qalıqlarının real vaxt izlənməsini, amortizasiya hesablanmasını və resursların səmərəli idarə olunmasını təmin edən sistemdir.",
+  budce:"Yol infrastrukturu üzrə investisiya ehtiyaclarının əsaslandırılması, layihələrin prioritetləşdirilməsi, büdcə bölgüsü və maliyyə resurslarının planlaşdırılmasını təmin edən sistemdir.",
+  audit:"Daxili nəzarət mexanizmlərinin icrası, audit yoxlamalarının aparılması, normativ tələblərə uyğunluğun qiymətləndirilməsi və pozuntuların izlənməsini təmin edən sistemdir.",
+  reyestr:"Avtomobil yolları, yol seqmentləri və bütün infrastruktur aktivləri üzrə struktur, məkan (GİS), hüquqi və əsas texniki məlumatların vahid model əsasında qeydiyyatını, saxlanılmasını, versiyalaşdırılmasını və digər sistemlər üçün etibarlı məlumat mənbəyi kimi təqdim olunmasını təmin edən mərkəzi sistemdir.",
+  toll:"Ödənişli avtomobil yolları üzrə tariflərin, keçid əməliyyatlarının, ödəniş proseslərinin idarə olunmasını; ANPR/LPR kameraları, RFID/ETC sistemləri, şlaqbaumlar, pozuntu aşkarlanması, borc uçotu, banklar və ödəniş provayderləri ilə inteqrasiyanı təmin edən sistemdir.",
+  neqliyyat:"Agentliyin balansında olan avtonəqliyyat vasitələrinin və xüsusi yol-tikinti texnikasının uçotunu, texniki vəziyyətini, GPS vasitəsilə real vaxt izlənməsini, yanacaq sərfiyyatını, istifadə intensivliyini; sürücülər üzrə uçotu və resursların optimallaşdırılmasını təmin edən sistemdir.",
+  tikinti:"Yol və yol qurğuları üzrə layihələrin planlaşdırılması, tikinti proseslərinin idarə olunması, texniki və müəllif nəzarəti, podratçı seçimi, müqavilə icrası, istismara qəbul aktlarının sənədləşdirilməsi və aktiv-material uyğunluğunun izlənməsini əhatə edən sistemdir.",
+  monitorinq:"Sensorlar, IoT qurğuları, tərəzilər, video müşahidə vasitələri və ölçmə sistemlərindən real vaxt məlumatlarının toplanmasını, hadisələrin aşkarlanmasını, yol infrastrukturunun texniki vəziyyətinin operativ monitorinqini; körpülər, tunellər üzrə sınaq nəticələrinin izlənməsini təmin edən platformadır.",
+  istisman:"Yol infrastrukturu üzrə aşkar olunan nasazlıqların, hadisələrin qeydiyyatını, prioritetləşdirilməsini, tapşırıqlara çevrilməsini, sahə briqadalarına yönləndirilməsini; fövqəladə hallarda hərəkətin məhdudlaşdırılması qeydiyyatını və aidiyyəti bildirişlər göndərilməsini təmin edən sistemdir.",
+  tehlu:"Qəza məlumatları, trafik göstəriciləri və yol infrastrukturu parametrləri əsasında risklərin analizi, təhlükəli sahələrin müəyyən edilməsi, tählükəsizlik üzrə qərar dəstəyi üçün analitik modellərin qurulmasını təmin edən sistemdir.",
+  icaze:"Normadan artıq çəki və ölçülərə malik nəqliyyat vasitələri üçün marşrutların uyğunluğunun qiymətləndirilməsini, yol aktivlərinə təsirin analizini və icazələrin verilməsi prosesinin avtomatlaşdırılmasını təmin edən sistemdir.",
+  komm:"Avtomobil yolları üzərindəki mühəndis-kommunikasiya xətlərinin planlaşdırılması, razılaşdırılması, icazələrin verilməsi və yerləşdirmə prosesinə nəzarətin həyata keçirilməsini təmin edən sistemdir.",
+  yolknar:"Yolkənarı xidmət obyektlərinin (dayanacaqlar, istirahət zonaları, xidmət sahələri) yerləşməsi, statusu, istifadəsi, inkişaf planlarının uçotunu; yolkənarı birləşmələr üçün texniki şərtlərin verilməsini, razılaşdırılmasını və icra prosesinə nəzarəti təmin edən sistemdir.",
+  torpaq:"Avtomobil yollarının yerləşdiyi təhkim zolaqları üzrə GİS əsaslı uçotu, qanunsuz tikililərin foto+geolokasiya ilə aşkarlanmasını, qeydiyyatını, müvafiq hüquqi tədbirlərin başlanmasını və icra vəziyyətinin izlənməsini təmin edən moduldur.",
+  ekologiya:"Avtomobil yolları boyunca yaşıllıq zolaqlarının, qoruyucu meşə sahələrinin uçotunu, yaşıllaşdırma işlərinin planlaşdırılmasını, bərpa-qulluq tədbirlərinin izlənməsini; ekoloji tələblərə uyğunluğun monitorinqini təmin edən moduldur.",
+  mygov:"Vətəndaş müraciətlərinin, şikayətlərin və hadisə bildirişlərinin myGOV vahid platforma üzərindən qəbul edilməsini; İnteqrasiya Platforması vasitəsilə CRM sisteminə və Yol Monitorinq Platformasına ötürülməsini, sistemlərarası məlumat mübadiləsinin standartlaşdırılmasını təmin edən komponentdir.",
+  xerite:"Avtomobil yolları şəbəkəsinin, kateqoriyaların, aktivlərin, açıq məhdudiyyət məlumatlarının vətəndaşlar üçün interaktiv xəritə üzərində təqdim olunmasını; axtarış, filtr, marşrut baxışı imkanlarını, inteqrasiya yolu ilə yenilənən məlumatların vizuallaşdırılmasını təmin edən komponentdir.",
+  portal:"Agentliyin açıqlanması nəzərdə tutulan ictimai məlumatlarının, statistik göstəricilərin, layihələr üzrə açıq statusların vahid portal üzərindən strukturlaşdırılmış, axtarıla bilən və mütəmadi yenilənən şəkildə vətəndaşlar, media və maraqlı tərəflərə təqdim olunmasını təmin edən komponentdir.",
+  mehdudat:"Avtomobil yollarında tətbiq olunan müvəqqəti hərəkət məhdudiyyətlərinin, bağlanmaların, alternativ istiqamətlərin, fövqəladə yol vəziyyəti barədə məlumatların real vaxt rejimində vətəndaşlara açıq şəkildə təqdim olunmasını; cari statusun operativ yenilənməsini və istifadəçilərin səfər planlamasında məlumatlı qərar verməsinə şərait yaradılmasını təmin edən komponentdir.",
+  chatbot:"Agentliyin xidmətləri, avtomobil yolları, müraciət prosedurları, açıq məlumatlar üzrə vətəndaşların suallarını cavablandıran; normativ baza, Elektron Arxiv və açıq məlumat mənbələri əsasında öyrədilmiş süni intellekt əsaslı informasiya komponentidir. Zəruri hallarda myGOV üzərindən müraciət yaratmağa istiqamətləndirir.",
+  odenis:"Ödənişli avtomobil yollarından istifadə üzrə Birbank, m10, ABB mobile, AzParking və digər ödəniş platformaları vasitəsilə nəqliyyat vasitəsinin dövlət qeydiyyat nişanı, yola giriş/çıxış məntəqəsi əsasında ödəniş məbləğinin hesablanmasını, elektron ödənişin həyata keçirilməsini, keçid tarixçəsi və elektron qəbzlər üzrə rəqəmsal xidmətlər göstərilməsini dəstəkləyən API əsaslı inteqrasiya xidmətidir.",
+};
+
+const ADESC={
+  'İ':'Sistemə tam texniki nəzarət — konfiqurasiya, istifadəçi idarəetməsi, tam məlumat erişimi',
+  'O':'Yalnız baxış hüququ — məlumatları görmək, ixrac etmək, lakin dəyişdirə bilməmək',
+  'Y':'Yeni qeydlər yaratmaq, mövcud məlumatları redaktə etmək',
+  'T':'Təqdim edilmiş sənəd/prosesləri rəsmi təsdiqləmək və elektron imzalamaq',
+  'Ə':'Birbaşa sistem əməliyyatlarını icra etmək (ödəniş, keçid, sifariş, yönləndirmə)',
+  'OY':'Məlumatları həm oxumaq, həm yaratmaq/redaktə etmək',
+  'OT':'Məlumatları oxumaq və rəsmi təsdiq/imza vermək',
+  'YT':'Yeni qeydlər yaratmaq və öz sahəsini rəsmi təsdiqləmək',
+  'OYT':'Tam işlək giriş — oxuma, yazma/redaktə və rəsmi təsdiqləmə'
+};
+
+// Build adjacency for quick lookup
+const adjMap={};
+connections.forEach(c=>{
+  if(!adjMap[c.from]) adjMap[c.from]={};
+  if(!adjMap[c.to])   adjMap[c.to]={};
+  adjMap[c.from][c.to]=(adjMap[c.from][c.to]||[]); adjMap[c.from][c.to].push(c);
+  adjMap[c.to][c.from]=(adjMap[c.to][c.from]||[]); adjMap[c.to][c.from].push(c);
+});
+
+const posMap={};
+systems.forEach(s=>{posMap[s.id]={x:s.x,y:s.y};});
+const connG=document.getElementById('connections');
+const nodeG=document.getElementById('nodes');
+const infoEl=document.getElementById('info');
+let activeId=null, activeRole=null, hoveredId=null;
+const ttEl=document.getElementById('node-tt');
+let ttTimer=null;
+
+function showTooltip(sid,nodeEl){
+  const s=getSysById(sid); if(!s) return;
+  const svgEl=document.getElementById('svg');
+  const svgRect=svgEl.getBoundingClientRect();
+  const p=currentPos[sid]; if(!p) return;
+  const vw=parseFloat(svgEl.getAttribute('width'))||1300;
+  const vh=parseFloat(svgEl.getAttribute('height'))||645;
+  const scaleX=svgRect.width/vw, scaleY=svgRect.height/vh;
+  const screenX=svgRect.left+p.x*scaleX;
+  const screenY=svgRect.top+(p.y+22)*scaleY;
+  const toList=[...new Map(connections.filter(c=>c.from===sid).map(c=>getSysById(c.to)).filter(Boolean).map(x=>[x.id,x])).values()];
+  const fromList=[...new Map(connections.filter(c=>c.to===sid).map(c=>getSysById(c.from)).filter(Boolean).map(x=>[x.id,x])).values()];
+  const acc=ACCESS[sid]||{};
+
+  let html=`<div class="tt-title">${s.label}</div>`;
+  html+=`<div style="font-size:11.5px;color:#555;line-height:1.55;margin-bottom:9px;border-bottom:1px solid #f0f0f0;padding-bottom:8px">${s.desc}</div>`;
+
+  if(Object.keys(acc).length){
+    html+=`<div class="tt-section">Rol Girişi (${Object.keys(acc).length} rol)</div>`;
+    html+=Object.entries(acc).map(([rid,level])=>{
+      const r=getRoleById(rid); if(!r) return '';
+      return `<div class="tt-item" style="margin-bottom:3px">
+        <span class="tt-dot" style="background:${r.color}"></span>
+        <span style="font-weight:700;color:${r.color};font-size:12px;min-width:30px">${r.code}</span>
+        <span style="font-size:11px;background:#EEEAFF;border-radius:4px;padding:1px 7px;
+          font-family:monospace;font-weight:800;color:#4A3DB8">${level}</span>
+        <span style="font-size:11px;color:#666">${ALABEL[level]||level}</span>
+      </div>`;
+    }).join('');
+  }
+
+  if(toList.length){
+    html+=`<div class="tt-section" style="margin-top:8px">Çıxış əlaqələri → (${toList.length})</div>`;
+    html+=toList.slice(0,6).map(cs=>`<div class="tt-item"><span class="tt-dot" style="background:${COLORS[cs.color].stroke}"></span><span>${cs.lines.join(' ')}</span></div>`).join('');
+    if(toList.length>6) html+=`<div class="tt-more">+${toList.length-6} sistem daha...</div>`;
+  }
+  if(fromList.length){
+    html+=`<div class="tt-section" style="margin-top:8px">Giriş əlaqələri ← (${fromList.length})</div>`;
+    html+=fromList.slice(0,6).map(cs=>`<div class="tt-item"><span class="tt-dot" style="background:${COLORS[cs.color].stroke}"></span><span>${cs.lines.join(' ')}</span></div>`).join('');
+    if(fromList.length>6) html+=`<div class="tt-more">+${fromList.length-6} sistem daha...</div>`;
+  }
+
+  html+=`<div style="font-size:10.5px;color:#bbb;margin-top:9px;border-top:1px solid #f5f5f5;padding-top:6px">
+    Klikləyin → tam məlumat paneli</div>`;
+
+  ttEl.innerHTML=html;
+  ttEl.style.display='block';
+  ttEl.style.left='-9999px'; ttEl.style.top='-9999px';
+  requestAnimationFrame(()=>{
+    const tw=ttEl.offsetWidth, th2=ttEl.offsetHeight;
+    let left=screenX-tw/2, top=screenY+10;
+    left=Math.max(8,Math.min(window.innerWidth-tw-8,left));
+    top=Math.max(8,Math.min(window.innerHeight-th2-8,top));
+    ttEl.style.left=left+'px'; ttEl.style.top=top+'px';
+  });
+}
+function hideTooltip(){clearTimeout(ttTimer);ttTimer=setTimeout(()=>{ttEl.style.display='none';},80);}
+
+function getRoleById(id){return ROLES.find(r=>r.id===id);}
+function getSysById(id){return systems.find(s=>s.id===id);}
+
+// Render role buttons into collapsible panel
+const rolesPanel=document.getElementById('panel-roles');
+ROLES.forEach(r=>{
+  const btn=document.createElement('button');
+  btn.className='role-btn'; btn.dataset.rid=r.id;
+  btn.title=r.desc;
+  btn.innerHTML=`<span class="rdot" style="background:${r.color}"></span>
+    <span class="rcode-badge" style="color:${r.color}">${r.code}</span>${r.label}`;
+  btn.addEventListener('click',()=>selectRole(r.id));
+  rolesPanel.appendChild(btn);
+});
+
+function togglePanel(id){
+  const panel=document.getElementById('panel-'+id);
+  const toggle=document.querySelector(`.cs-toggle[data-panel="${id}"]`);
+  const isOpen=panel.classList.toggle('open');
+  toggle.classList.toggle('open',isOpen);
+}
+
+// Draw connection lines
+function makePath(p1,p2,isRad){
+  let d;
+  if(isRad){
+    const mx=(p1.x+p2.x)/2,my=(p1.y+p2.y)/2;
+    const cpx=mx+(650-mx)*0.28,cpy=my+(650-my)*0.28;
+    d=`M${p1.x},${p1.y} Q${cpx},${cpy} ${p2.x},${p2.y}`;
+  } else {
+    const dx=p2.x-p1.x;
+    if(Math.abs(dx)>60){
+      const cx1=p1.x+dx*0.42,cx2=p2.x-dx*0.42;
+      d=`M${p1.x},${p1.y} C${cx1},${p1.y} ${cx2},${p2.y} ${p2.x},${p2.y}`;
+    } else {
+      const off=(dx>=0?1:-1)*36;
+      d=`M${p1.x},${p1.y} Q${p1.x+off},${(p1.y+p2.y)/2} ${p2.x},${p2.y}`;
+    }
+  }
+  return d;
+}
+
+function drawConnections(targetPos, isRad){
+  while(connG.firstChild) connG.removeChild(connG.firstChild);
+  connections.forEach(c=>{
+    const p1=targetPos[c.from],p2=targetPos[c.to]; if(!p1||!p2) return;
+    const st=typeStyle[c.type]||typeStyle.tech;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',makePath(p1,p2,isRad));
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke',st.stroke);
+    path.setAttribute('stroke-width',st.width);
+    if(st.dash) path.setAttribute('stroke-dasharray',st.dash);
+    path.setAttribute('marker-end','url(#arr)');
+    path.setAttribute('opacity','0.07');
+    path.classList.add('conn-line');
+    path.dataset.from=c.from; path.dataset.to=c.to;
+    path.dataset.w=st.width; path.dataset.s=st.stroke;
+    connG.appendChild(path);
+  });
+}
+
+function clearRoleBtns(){
+  document.querySelectorAll('.role-btn').forEach(b=>{
+    b.classList.remove('active');b.style.background='';b.style.borderColor='';b.style.color='';
+  });
+}
+
+function highlightNode(id, strong){
+  document.querySelectorAll('.node-g').forEach(el=>{
+    const s=getSysById(el.dataset.id);
+    const rect=el.querySelector('rect');
+    if(el.dataset.id===id){
+      el.style.opacity='1';
+      rect.setAttribute('stroke-width','2.8');
+      if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
+    } else {
+      el.style.opacity='0.08';
+      rect.setAttribute('stroke-width','0.8');
+      if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
+    }
+  });
+}
+
+function applyHover(id){
+  const connected=new Set([id]);
+  connections.forEach(c=>{
+    if(c.from===id) connected.add(c.to);
+    if(c.to===id)   connected.add(c.from);
+  });
+  document.querySelectorAll('.node-g').forEach(el=>{
+    const sid=el.dataset.id;
+    const s=getSysById(sid);
+    const rect=el.querySelector('rect');
+    if(sid===id){
+      el.style.opacity='1'; rect.setAttribute('stroke-width','2.8');
+      if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
+    } else if(connected.has(sid)){
+      el.style.opacity='1'; rect.setAttribute('stroke-width','1.5');
+      if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
+    } else {
+      el.style.opacity='0.1'; rect.setAttribute('stroke-width','0.8');
+      if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
+    }
+  });
+  document.querySelectorAll('.conn-line').forEach(el=>{
+    const on=el.dataset.from===id||el.dataset.to===id;
+    el.style.opacity=on?'0.88':'0.03';
+    el.setAttribute('stroke-width', on ? parseFloat(el.dataset.w)*2.4 : el.dataset.w);
+  });
+}
+
+function resetAll(){
+  activeId=null; activeRole=null; hoveredId=null;
+  clearRoleBtns();
+  document.querySelectorAll('.node-g').forEach(el=>{
+    el.style.opacity='1';
+    const rect=el.querySelector('rect');
+    rect.setAttribute('stroke-width','0.8');
+    const s=getSysById(el.dataset.id);
+    if(s){
+      const cl=COLORS[s.color];
+      rect.setAttribute('stroke',cl.stroke);
+      rect.setAttribute('fill',cl.fill);
+      el.querySelectorAll('text').forEach(t=>t.setAttribute('fill',cl.text));
+    }
+  });
+  document.querySelectorAll('.conn-line').forEach(el=>{
+    el.style.opacity='0.07';
+    el.setAttribute('stroke-width',el.dataset.w);
+  });
+  infoEl.innerHTML='Sistemin üzərinə toxunun — əlaqəli xətlər və rol cədvəli görünəcək';
+}
+
+function selectSystem(id){
+  activeId=id; activeRole=null;
+  clearRoleBtns();
+  applyHover(id);
+  const s=getSysById(id);
+  const acc=ACCESS[id]||{};
+  // Highlight selected node with inverted colors
+  document.querySelectorAll('.node-g').forEach(el=>{
+    if(el.dataset.id===id){
+      const cl2=COLORS[s.color];
+      el.querySelector('rect').setAttribute('fill',cl2.stroke);
+      el.querySelector('rect').setAttribute('stroke','#fff');
+      el.querySelectorAll('text').forEach(t=>t.setAttribute('fill','#fff'));
+    }
+  });
+  const roleHtml=Object.entries(acc).map(([rid,level])=>{
+    const r=getRoleById(rid);if(!r)return'';
+    return `<span class="rtag" style="background:${r.fill};color:${r.text}">
+      <span style="font-size:11px;background:${r.color};color:#fff;border-radius:4px;
+        padding:2px 7px;font-family:monospace;font-weight:800">${r.code}</span>
+      <span style="font-weight:600;font-size:12.5px">${r.label}</span>
+      <span title="${ADESC[level]||''}" style="font-size:11px;font-family:monospace;font-weight:800;
+        background:rgba(0,0,0,.10);border-radius:4px;padding:2px 7px">${level}</span>
+    </span>`;
+  }).join('');
+  const cl=COLORS[s.color];
+  const sysDesc=SYSDESC[id]||s.desc;
+  infoEl.innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+      margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee">
+      <strong style="font-size:15px;font-weight:800;color:${cl.text};flex:1;line-height:1.35">${s.label}</strong>
+      <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
+        <button class="iact" title="Məlumat — Sistemin tam texniki izahı">İ</button>
+        <button class="iact" title="Fayl / Sənəd növü">ft</button>
+        <button class="iact" title="Seçim — bu sistemi işarələ"
+          onclick="this.classList.toggle('marked');this.textContent=this.classList.contains('marked')?'✓':'☐'">☐</button>
+        <button class="iact" title="Rol axını strukturu — əlaqəli xətlər"
+          onclick="applyHover('${id}')">≡</button>
+      </div>
+    </div>
+    <div style="font-size:13px;color:#555;line-height:1.65;margin-bottom:10px">${sysDesc}</div>
+    <div style="font-size:11px;font-weight:800;color:#aaa;letter-spacing:.7px;text-transform:uppercase;
+      margin-bottom:6px">Əlçatanlığı olan rollar — ${Object.keys(acc).length} rol</div>
+    <div class="rtags">${roleHtml}</div>`;
+}
+
+function selectRole(rid){
+  if(activeRole===rid){resetAll();return;}
+  activeRole=rid; activeId=null;
+  const r=getRoleById(rid);
+  clearRoleBtns();
+  const btn=document.querySelector(`.role-btn[data-rid="${rid}"]`);
+  if(btn){btn.classList.add('active');btn.style.background=r.fill;btn.style.borderColor=r.color;btn.style.color=r.text;}
+  document.querySelectorAll('.node-g').forEach(el=>{
+    const sid=el.dataset.id;
+    const acc=ACCESS[sid]&&ACCESS[sid][rid];
+    const rect=el.querySelector('rect');
+    const s=getSysById(sid);
+    if(acc){
+      el.style.opacity='1'; rect.setAttribute('stroke-width','2.5');
+      rect.setAttribute('stroke',r.color);
+    } else {
+      el.style.opacity='0.09'; rect.setAttribute('stroke-width','0.8');
+      if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
+    }
+  });
+  document.querySelectorAll('.conn-line').forEach(el=>{
+    el.style.opacity='0.04'; el.setAttribute('stroke-width',el.dataset.w);
+  });
+  const sysList=systems.filter(s=>ACCESS[s.id]&&ACCESS[s.id][rid]);
+  const sysHtml=sysList.map(s=>{
+    const acc=ACCESS[s.id][rid];
+    const cl=COLORS[s.color];
+    return `<span class="rtag" style="background:${cl.fill};color:${cl.text};
+      display:inline-flex;align-items:center;gap:5px;margin:3px 4px;padding:5px 11px;
+      border-radius:10px;border:1px solid ${cl.stroke}40">
+      <span style="font-weight:700;font-size:12.5px">${s.lines[0]}</span>
+      <span style="font-size:11px;background:#EEEAFF;color:#4A3DB8;border-radius:4px;
+        padding:1px 7px;font-family:monospace;font-weight:800">${acc}</span>
+      <span style="font-size:11px;opacity:.75">${ALABEL[acc]||acc}</span>
+    </span>`;
+  }).join('');
+  infoEl.innerHTML=`
+    <strong style="font-size:16px;font-weight:800;color:${r.color};display:block;margin-bottom:6px">
+      ${r.code} — ${r.label}</strong>
+    <div style="font-size:13.5px;color:#555;line-height:1.65;margin-bottom:10px;
+      padding-bottom:10px;border-bottom:1px solid #eee">${r.desc}</div>
+    <div style="font-size:11px;font-weight:800;color:#aaa;letter-spacing:.7px;text-transform:uppercase;
+      margin-bottom:6px">Əlçatanlığı olan sistemlər — ${sysList.length} sistem</div>
+    <div class="rtags">${sysHtml}</div>
+    <div style="font-size:11px;color:#bbb;margin-top:10px;border-top:1px solid #f5f5f5;padding-top:6px">
+      Başqa bir rol seçin — müqayisə edin · Boş yerə basın — sıfırlayın</div>`;
+}
+
+// Build nodes with hover
+systems.forEach(s=>{
+  const p=posMap[s.id];
+  const cl=COLORS[s.color];
+  const isMeis=s.id==='meis';
+  const w=isMeis?120:NW, h=isMeis?38:NH;
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.classList.add('node-g'); g.dataset.id=s.id;
+  const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rect.setAttribute('x',p.x-w/2); rect.setAttribute('y',p.y-h/2);
+  rect.setAttribute('width',w); rect.setAttribute('height',h);
+  rect.setAttribute('rx',isMeis?18:10);
+  rect.setAttribute('fill',cl.fill); rect.setAttribute('stroke',cl.stroke);
+  rect.setAttribute('stroke-width','0.8');
+  g.appendChild(rect);
+  const lines=s.lines;
+  const lineH=13,totalH=lines.length*lineH,startY=p.y-totalH/2+lineH*0.55;
+  lines.forEach((ln,i)=>{
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',p.x); t.setAttribute('y',startY+i*lineH);
+    t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','central');
+    t.setAttribute('fill',cl.text);
+    t.setAttribute('font-size',isMeis?'13':'10.5'); t.setAttribute('font-weight','600');
+    t.textContent=ln; g.appendChild(t);
+  });
+  const roleCount=Object.keys(ACCESS[s.id]||{}).length;
+  const badge=document.createElementNS('http://www.w3.org/2000/svg','text');
+  badge.setAttribute('x',p.x+w/2-4); badge.setAttribute('y',p.y-h/2+8);
+  badge.setAttribute('text-anchor','end'); badge.setAttribute('dominant-baseline','central');
+  badge.setAttribute('fill',cl.stroke); badge.setAttribute('font-size','8');
+  badge.setAttribute('font-weight','700'); badge.setAttribute('opacity','0.6');
+  badge.textContent=roleCount+'R'; g.appendChild(badge);
+  g.addEventListener('mouseenter',()=>{
+    if(!activeId&&!activeRole){hoveredId=s.id; applyHover(s.id);}
+  });
+  g.addEventListener('mouseleave',()=>{
+    if(!activeId&&!activeRole){hoveredId=null; resetAll();}
+  });
+  g.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(activeId===s.id&&!activeRole){resetAll();}
+    else{selectSystem(s.id);}
+  });
+  nodeG.appendChild(g);
+});
+
+document.getElementById('svg').addEventListener('click',resetAll);
+
+// Initial draw
+drawConnections(posMap, false);
+
+// ── VIEW SWITCHER ──
+const RADII_VIEW={meis:0,tech:155,corp:290,reg:400,ops:510,citizen:620};
+const CX_RAD=650,CY_RAD=650;
+const radialAngles={
+  meis:0,api:0,bi:60,dw:120,notify:180,storage:240,mobile:300,
+  esened:0,halga:45,task:90,hr:135,arxiv:180,vasite:225,budce:270,audit:315,
+  reyestr:240,toll:0,neqliyyat:33,tikinti:66,monitorinq:99,istisman:132,
+  tehlu:165,ekologiya:198,icaze:231,komm:264,yolknar:297,torpaq:330,
+  mygov:0,odenis:60,xerite:120,mehdudat:180,portal:240,chatbot:300
+};
+function polarPos(ring,angleDeg){
+  const r=RADII_VIEW[ring];
+  const rad=(angleDeg-90)*Math.PI/180;
+  return{x:CX_RAD+r*Math.cos(rad),y:CY_RAD+r*Math.sin(rad)};
+}
+const colPos={};systems.forEach(s=>{colPos[s.id]={x:s.x,y:s.y};});
+const radRing={
+  meis:'meis',api:'tech',bi:'tech',dw:'tech',notify:'tech',storage:'tech',mobile:'tech',
+  esened:'corp',halga:'corp',task:'corp',hr:'corp',arxiv:'corp',vasite:'corp',budce:'corp',audit:'corp',
+  reyestr:'reg',toll:'ops',neqliyyat:'ops',tikinti:'ops',monitorinq:'ops',istisman:'ops',tehlu:'ops',
+  ekologiya:'ops',icaze:'ops',komm:'ops',yolknar:'ops',torpaq:'ops',
+  mygov:'citizen',odenis:'citizen',xerite:'citizen',mehdudat:'citizen',portal:'citizen',chatbot:'citizen'
+};
+const radPos={};
+systems.forEach(s=>{radPos[s.id]=polarPos(radRing[s.id],radialAngles[s.id]||0);});
+let currentPos=posMap; // updated on setView
+
+function setView(v){
+  resetAll();
+  ['col','rad','mat'].forEach(k=>document.getElementById('btn-'+k).classList.toggle('active',k===v));
+  const svg=document.getElementById('svg');
+  const cw=document.getElementById('canvas-wrap');
+  const mw=document.getElementById('matrix-wrap');
+  if(v==='mat'){cw.style.display='none';mw.style.display='block';buildMatrix();return;}
+  cw.style.display='flex'; mw.style.display='none';
+  const isRad=v==='rad';
+  currentPos=isRad?radPos:posMap;
+  if(isRad){svg.setAttribute('width','1300');svg.setAttribute('height','1300');svg.setAttribute('viewBox','0 0 1300 1300');}
+  else{svg.setAttribute('width','1300');svg.setAttribute('height','645');svg.setAttribute('viewBox','0 0 1300 645');}
+  document.querySelectorAll('.zone-bg').forEach(el=>{el.style.display=isRad?'none':'';});
+  document.querySelectorAll('.zone-ring').forEach(el=>{el.style.display=isRad?'':'none';});
+  const tp=currentPos;
+  document.querySelectorAll('.node-g').forEach(g=>{
+    const id=g.dataset.id; const p=tp[id]; if(!p) return;
+    const isMeis=id==='meis';
+    const w=isMeis?(isRad?80:120):NW, h=isMeis?(isRad?30:38):NH;
+    const rect=g.querySelector('rect');
+    rect.setAttribute('x',p.x-w/2); rect.setAttribute('y',p.y-h/2);
+    rect.setAttribute('width',w); rect.setAttribute('height',h);
+    const txts=Array.from(g.querySelectorAll('text'));
+    const lbls=txts.slice(0,txts.length-1);
+    lbls.forEach((t,i)=>{
+      t.setAttribute('font-size',isRad?(isMeis?'13':'10'):(isMeis?'13':'10.5'));
+      const lH=isRad?12:13,tH=lbls.length*lH,sY=p.y-tH/2+lH*0.55;
+      t.setAttribute('x',p.x); t.setAttribute('y',sY+i*lH);
+    });
+    const badge=txts[txts.length-1];
+    badge.setAttribute('x',p.x+w/2-4); badge.setAttribute('y',p.y-h/2+8);
+  });
+  drawConnections(tp, isRad);
+}
+
+// Radial rings
+const ringsG=document.getElementById('rings');
+[{r:RADII_VIEW.tech,c:'#16A97A'},{r:RADII_VIEW.corp,c:'#E05A2B'},
+ {r:RADII_VIEW.reg,c:'#A855C8'},{r:RADII_VIEW.ops,c:'#D4960A'},
+ {r:RADII_VIEW.citizen,c:'#2D8FE0'}].forEach(({r,c})=>{
+  const el=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  el.setAttribute('cx',CX_RAD);el.setAttribute('cy',CY_RAD);el.setAttribute('r',r);
+  el.setAttribute('fill','none');el.setAttribute('stroke',c);
+  el.setAttribute('stroke-width','0.8');el.setAttribute('stroke-dasharray','5,5');
+  el.setAttribute('opacity','0.3');el.style.display='none';
+  el.classList.add('zone-ring'); ringsG.appendChild(el);
+});
+
+document.querySelectorAll('rect[x="14"],rect[x="203"],rect[x="392"],rect[x="581"],rect[x="1025"]')
+  .forEach(el=>el.classList.add('zone-bg'));
+document.querySelectorAll('text').forEach(el=>{
+  const x=parseFloat(el.getAttribute('x'));
+  if([101,290,479,796,1156].includes(Math.round(x))&&el.getAttribute('font-size')==='11')
+    el.classList.add('zone-bg');
+});
+
+// Matrix
+function mkActBtn(label,tooltip,onclick,color){
+  const b=document.createElement('button');
+  b.textContent=label; b.title=tooltip||label;
+  b.style.cssText=`font-size:11px;font-weight:700;font-family:monospace;
+    background:#F3F4FA;border:1.5px solid #D0D4E0;border-radius:4px;
+    padding:2px 7px;cursor:pointer;color:${color||'#555'};line-height:1.6;
+    transition:background .1s,border-color .1s;`;
+  b.addEventListener('mouseenter',()=>{b.style.background='#EEEAFF';b.style.borderColor='#7C6EF5';});
+  b.addEventListener('mouseleave',()=>{b.style.background='#F3F4FA';b.style.borderColor='#D0D4E0';});
+  if(onclick) b.addEventListener('click',e=>{e.stopPropagation();onclick();});
+  return b;
+}
+
+function buildMatrix(){
+  const tbl=document.getElementById('mtbl'); tbl.innerHTML='';
+  const tr0=document.createElement('tr');
+  const th0=document.createElement('th');
+  th0.textContent='Sistem / Rol';th0.style.textAlign='left';th0.style.minWidth='165px';
+  tr0.appendChild(th0);
+  ROLES.forEach(r=>{
+    const th=document.createElement('th');
+    th.title=`${r.label}\n${r.desc}`;
+    th.innerHTML=`<span style="color:${r.color};font-size:13px;font-weight:800">${r.code}</span>
+      <div style="font-size:10px;color:#888;font-weight:500;margin-top:2px;white-space:normal;
+        min-width:56px;line-height:1.2">${r.label}</div>`;
+    tr0.appendChild(th);
+  });
+  tbl.appendChild(tr0);
+  const tbody=document.createElement('tbody');
+  tbl.appendChild(tbody);
+  const cats=[
+    {label:'MEİS',color:'#7C6EF5',ids:['meis']},
+    {label:'Texnoloji Platforma',color:'#16A97A',ids:['api','bi','dw','notify','storage','mobile']},
+    {label:'Korporativ İdarəetmə',color:'#E05A2B',ids:['esened','halga','task','hr','arxiv','vasite','budce','audit']},
+    {label:'Reyestr',color:'#A855C8',ids:['reyestr']},
+    {label:'Əməliyyat Sistemləri',color:'#D4960A',ids:['toll','neqliyyat','tikinti','monitorinq','istisman','tehlu','icaze','komm','yolknar','torpaq','ekologiya']},
+    {label:'Vətəndaş İnterfeysi',color:'#2D8FE0',ids:['mygov','odenis','xerite','mehdudat','portal','chatbot']},
+  ];
+  let openDetTr=null;
+  cats.forEach(cat=>{
+    const cr=document.createElement('tr');
+    const cd=document.createElement('td');
+    cd.colSpan=ROLES.length+1;
+    cd.style.cssText=`background:${cat.color}18;color:${cat.color};font-weight:800;font-size:12px;padding:8px 16px;letter-spacing:.6px;border:1px solid #DDE1EA;`;
+    cd.textContent=cat.label.toUpperCase(); cr.appendChild(cd); tbody.appendChild(cr);
+    cat.ids.forEach(sid=>{
+      const s=getSysById(sid); if(!s) return;
+      const cl=COLORS[s.color];
+
+      // Main row
+      const tr=document.createElement('tr');
+      tr.style.cursor='pointer';
+      const tdN=document.createElement('td');
+      tdN.className='rh'; tdN.style.borderLeft=`4px solid ${cl.stroke}`;
+      tdN.title=SYSDESC[sid]||s.label;
+      tdN.innerHTML=`<span style="font-weight:700">${s.lines.join(' ')}</span>
+        <span style="font-size:10px;color:#bbb;margin-left:6px;font-weight:400">▾</span>`;
+      tr.appendChild(tdN);
+      ROLES.forEach(r=>{
+        const td=document.createElement('td');
+        const acc=ACCESS[sid]&&ACCESS[sid][r.id];
+        td.innerHTML=acc
+          ?`<span class="mc" title="${r.label}: ${ALABEL[acc]||acc}&#10;${ADESC[acc]||''}"
+              style="background:${r.fill};color:${r.text}">${acc}</span>`
+          :`<span style="color:#ddd">—</span>`;
+        tr.appendChild(td);
+      });
+
+      // Detail submenu row — 4-column grid, click-based
+      const detTr=document.createElement('tr');
+      detTr.style.display='none';
+      const detTd=document.createElement('td');
+      detTd.colSpan=ROLES.length+1;
+      detTd.style.cssText='padding:0;border:none;';
+      const inner=document.createElement('div');
+      inner.style.cssText=`background:#F8F9FF;border-left:4px solid ${cl.stroke};
+        border-bottom:2px solid ${cl.stroke};`;
+
+      const allConn=[...new Map([
+        ...connections.filter(c=>c.from===sid).map(c=>getSysById(c.to)),
+        ...connections.filter(c=>c.to===sid).map(c=>getSysById(c.from))
+      ].filter(Boolean).map(x=>[x.id,x])).values()];
+
+      const grid=document.createElement('div');
+      grid.className='sub-grid';
+
+      allConn.forEach(cs=>{
+        const cc=COLORS[cs.color];
+        const item=document.createElement('div');
+        item.className='sub-item';
+
+        const nameSpan=document.createElement('span');
+        nameSpan.className='sub-name';
+        nameSpan.textContent=cs.lines[0];
+        nameSpan.title=SYSDESC[cs.id]||cs.label;
+        nameSpan.style.color=cc.text;
+        nameSpan.addEventListener('click',e=>{e.stopPropagation();selectSystem(cs.id);});
+
+        item.appendChild(nameSpan);
+        grid.appendChild(item);
+      });
+
+      inner.appendChild(grid);
+      detTd.appendChild(inner);
+      detTr.appendChild(detTd);
+
+      // Click to toggle open/close
+      tr.addEventListener('click',()=>{
+        if(openDetTr && openDetTr!==detTr){
+          openDetTr.style.display='none';
+        }
+        const isOpen=detTr.style.display!=='none';
+        detTr.style.display=isOpen?'none':'';
+        if(!isOpen) openDetTr=detTr; else openDetTr=null;
+        tdN.querySelector('span:last-child').textContent=isOpen?'▾':'▴';
+      });
+
+      tbody.appendChild(tr);
+      tbody.appendChild(detTr);
+    });
+  });
+}
+</script>
+</body>
+</html>
