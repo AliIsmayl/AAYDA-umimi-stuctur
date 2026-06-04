@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AAYDA — Ümumi Rol Axını Kodlaşdırması</title>
+<title>AAYDA — Azərbaycan Avtomobil Yolları Dövlət Agentliyinin rəqəmsal ekosistemi</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#F0F2F7;min-height:100vh;
@@ -87,6 +87,10 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
   text-align:center;width:100%;transition:all .1s;display:flex;align-items:center;
   justify-content:center;gap:6px;}
 .is-nav:hover{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;}
+.is-date-input{font-size:13px;font-weight:600;color:#333;border:1.5px solid #E0E4EC;
+  border-radius:6px;padding:4px 8px;width:100%;font-family:inherit;background:#fff;
+  cursor:pointer;margin-top:2px;}
+.is-date-input:focus{outline:none;border-color:#7C6EF5;box-shadow:0 0 0 2px #7C6EF520;}
 #info strong{color:#111;font-weight:700;font-size:16px;display:block;margin-bottom:5px}
 .rtags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;border-top:1px solid #eee;padding-top:8px;}
 .rtag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;border-radius:8px;
@@ -133,37 +137,26 @@ footer{margin-top:18px;font-size:12px;color:#bbb;text-align:center}
 </style>
 </head>
 <body>
-<h1>AAYDA — Sistemlər üzrə Rol Axını Kodlaşdırması</h1>
+<h1>Azərbaycan Avtomobil Yolları Dövlət Agentliyinin rəqəmsal ekosistemi</h1>
 <p class="subtitle">Sistemə toxunun — əlaqəli xətlər görünəcək · Boş yerə basın — sıfırlayın</p>
 
 <div id="top-bar">
   <button class="vbtn active" id="btn-col" onclick="setView('col')">⊞ Sütun</button>
-  <button class="vbtn" id="btn-rad" onclick="setView('rad')">◎ Halqa</button>
+  <button class="vbtn" id="btn-rad" onclick="setView('rad')">◎ Çevrə</button>
   <button class="vbtn" id="btn-mat" onclick="setView('mat')">⊟ Cədvəl</button>
   <span style="width:1px;height:28px;background:#E0E4EC;margin:0 4px;display:inline-block"></span>
   <button class="cs-toggle" data-panel="conns" onclick="togglePanel('conns')">Əlaqə növləri <span class="cs-arr">▾</span></button>
-  <button class="cs-toggle" data-panel="acodes" onclick="togglePanel('acodes')">Giriş kodları <span class="cs-arr">▾</span></button>
 </div>
 
 <div id="panel-conns" class="cs-panel">
   <div class="cl"><div class="cl-line" style="background:#7C6EF5"></div>MEİS — Vahid Giriş</div>
-  <div class="cl"><div class="cl-line" style="background:#16A97A"></div>Texnoloji Platforma inteqrasiyası</div>
-  <div class="cl"><div class="cl-line" style="background:#E05A2B"></div>Korporativ → Əməliyyat</div>
-  <div class="cl"><div class="cl-line" style="background:#D4960A"></div>Əməliyyat → Reyestr</div>
-  <div class="cl"><div class="cl-line" style="background:#A855C8"></div>Reyestr ↔ Korporativ/Əməliyyat</div>
-  <div class="cl"><div class="cl-line" style="background:#2D8FE0"></div>Vətəndaş İnterfeysi inteqrasiyası</div>
+  <div class="cl"><div class="cl-line" style="background:#16A97A"></div>Texnoloji Platforma</div>
+  <div class="cl"><div class="cl-line" style="background:#E05A2B"></div>Əməliyyat Sistemləri</div>
+  <div class="cl"><div class="cl-line" style="background:#D4960A"></div>Yol Reyestri</div>
+  <div class="cl"><div class="cl-line" style="background:#A855C8"></div>Reyestr əlaqəsi</div>
+  <div class="cl"><div class="cl-line" style="background:#2D8FE0"></div>Vətəndaş İnterfeysi</div>
 </div>
 
-<div id="panel-acodes" class="cs-panel">
-  <div class="aci"><b>İ</b><span class="aci-lbl">İdarəetmə — Tam texniki nəzarət, konfiqurasiya, istifadəçi idarəetməsi</span></div>
-  <div class="aci"><b>O</b><span class="aci-lbl">Oxuma — Yalnız baxış hüququ, ixrac, lakin dəyişdirə bilməmək</span></div>
-  <div class="aci"><b>Y</b><span class="aci-lbl">Yazma — Yeni qeydlər yaratmaq, mövcud məlumatları redaktə etmək</span></div>
-  <div class="aci"><b>T</b><span class="aci-lbl">Təsdiq — Sənəd/prosesləri rəsmi təsdiqləmək, elektron imzalamaq</span></div>
-  <div class="aci"><b>Ə</b><span class="aci-lbl">Əməliyyat — Birbaşa sistem əməliyyatlarını icra etmək</span></div>
-  <div class="aci"><b>OY</b><span class="aci-lbl">Oxuma + Yazma — Məlumatları həm oxumaq, həm yaratmaq/redaktə etmək</span></div>
-  <div class="aci"><b>OT</b><span class="aci-lbl">Oxuma + Təsdiq — Oxumaq və rəsmi təsdiq/imza vermək</span></div>
-  <div class="aci"><b>OYT</b><span class="aci-lbl">Oxuma + Yazma + Təsdiq — Tam işlək giriş: oxuma, yazma və rəsmi təsdiqləmə</span></div>
-</div>
 
 <div id="info"><div class="info-main" style="color:#aaa;font-size:14px">Sistemin üzərinə toxunun — əlaqəli xətlər və rol cədvəli görünəcək</div></div>
 
@@ -823,7 +816,6 @@ function selectSystem(id){
   activeId=id;
   applyHover(id);
   const s=getSysById(id);
-  const acc=ACCESS[id]||{};
   // Highlight selected node with inverted colors
   document.querySelectorAll('.node-g').forEach(el=>{
     if(el.dataset.id===id){
@@ -833,16 +825,6 @@ function selectSystem(id){
       el.querySelectorAll('text').forEach(t=>t.setAttribute('fill','#fff'));
     }
   });
-  const roleHtml=Object.entries(acc).map(([rid,level])=>{
-    const r=getRoleById(rid);if(!r)return'';
-    return `<span class="rtag" style="background:${r.fill};color:${r.text}">
-      <span style="font-size:11px;background:${r.color};color:#fff;border-radius:4px;
-        padding:2px 7px;font-family:monospace;font-weight:800">${r.code}</span>
-      <span style="font-weight:600;font-size:12.5px">${r.label}</span>
-      <span title="${ADESC[level]||''}" style="font-size:11px;font-family:monospace;font-weight:800;
-        background:rgba(0,0,0,.10);border-radius:4px;padding:2px 7px">${level}</span>
-    </span>`;
-  }).join('');
   const cl=COLORS[s.color];
   const sysDesc=SYSDESC[id]||s.desc;
   const proj=SYSPROJECT[id]||{};
@@ -868,27 +850,33 @@ function selectSystem(id){
             onclick="this.classList.toggle('marked');this.textContent=this.classList.contains('marked')?'✓':'☐'">☐</button>
         </div>
       </div>
-      <div style="font-size:13px;color:#555;line-height:1.65;margin-bottom:10px">${sysDesc}</div>
-      <div style="font-size:11px;font-weight:800;color:#aaa;letter-spacing:.7px;text-transform:uppercase;
-        margin-bottom:6px">Əlçatanlığı olan rollar — ${Object.keys(acc).length} rol</div>
-      <div class="rtags">${roleHtml}</div>
+      <div style="font-size:13px;color:#555;line-height:1.65;">${sysDesc}</div>
     </div>
     <div class="info-side open" id="info-side-${id}">
       <div class="is-hd">Layihə məlumatları</div>
       <div class="is-row">
         <span class="is-lbl">Başlanma tarixi</span>
-        <span class="is-val">${proj.start||'—'}</span>
+        <input type="date" class="is-date-input" value="${proj.start||''}"
+          onchange="SYSPROJECT['${id}'].start=this.value">
       </div>
       <div class="is-row">
         <span class="is-lbl">Son tarix (deadline)</span>
-        <span class="is-val">${proj.deadline||'—'}</span>
+        <input type="date" class="is-date-input" value="${proj.deadline||''}"
+          onchange="SYSPROJECT['${id}'].deadline=this.value">
       </div>
-      ${hasFT
-        ? `<div class="is-row">
-            <span class="is-lbl">FT təsdiq son tarixi</span>
-            <span class="is-val">${proj.ftDeadline||'—'}</span>
-           </div>`
-        : `<div class="is-badge">FT — hazırlanır</div>`}
+      <div class="is-row">
+        <span class="is-lbl">FT son tarixi</span>
+        <input type="date" class="is-date-input" value="${proj.ftDeadline||''}"
+          onchange="SYSPROJECT['${id}'].ftDeadline=this.value">
+      </div>
+      <button class="is-nav" id="save-btn-${id}" style="background:#F0FDF4;border-color:#16A97A;color:#0A5C3F;margin-top:4px"
+        onclick="(function(){
+          const p=SYSPROJECT['${id}'];
+          const btn=document.getElementById('save-btn-${id}');
+          btn.textContent='✓ Saxlanıldı';
+          btn.style.background='#D1FAE5';
+          setTimeout(()=>{btn.textContent='✓ Təsdiqlə';btn.style.background='#F0FDF4';},2000);
+        })()">✓ Təsdiqlə</button>
       <div style="flex:1"></div>
       <button class="is-nav" onclick="if(window._protoUrl_${id}) window.open(window._protoUrl_${id})" title="Prototipə keçid">
         ⧉ Prototip
@@ -978,11 +966,25 @@ function setView(v){
   const cw=document.getElementById('canvas-wrap');
   const mw=document.getElementById('matrix-wrap');
   if(v==='mat'){cw.style.display='none';mw.style.display='block';buildMatrix();return;}
+  // Display dəyişmədən ƏVVƏL scroll-u anında sıfırla — sürüşmənin qarşısını alır
+  document.documentElement.style.scrollBehavior='auto';
+  document.body.style.scrollBehavior='auto';
+  window.scrollTo(0,0);
   cw.style.display='flex'; mw.style.display='none';
   const isRad=v==='rad';
   currentPos=isRad?radPos:posMap;
   if(isRad){svg.setAttribute('width','1300');svg.setAttribute('height','1300');svg.setAttribute('viewBox','0 0 1300 1300');}
-  else{svg.setAttribute('width','1300');svg.setAttribute('height','645');svg.setAttribute('viewBox','0 0 1300 645');}
+  else{
+    const svgEls=svg.querySelectorAll('*');
+    svgEls.forEach(el=>{el.style.transition='none';});
+    cw.scrollLeft=0; cw.scrollTop=0;
+    svg.setAttribute('width','1300');svg.setAttribute('height','645');svg.setAttribute('viewBox','0 0 1300 645');
+    requestAnimationFrame(()=>{
+      svgEls.forEach(el=>{el.style.transition='';});
+      document.documentElement.style.scrollBehavior='';
+      document.body.style.scrollBehavior='';
+    });
+  }
   document.querySelectorAll('.zone-bg').forEach(el=>{el.style.display=isRad?'none':'';});
   document.querySelectorAll('.zone-ring').forEach(el=>{el.style.display=isRad?'':'none';});
   const tp=currentPos;
@@ -994,14 +996,11 @@ function setView(v){
     rect.setAttribute('x',p.x-w/2); rect.setAttribute('y',p.y-h/2);
     rect.setAttribute('width',w); rect.setAttribute('height',h);
     const txts=Array.from(g.querySelectorAll('text'));
-    const lbls=txts.slice(0,txts.length-1);
-    lbls.forEach((t,i)=>{
+    txts.forEach((t,i)=>{
       t.setAttribute('font-size',isRad?(isMeis?'13':'10'):(isMeis?'13':'10.5'));
-      const lH=isRad?12:13,tH=lbls.length*lH,sY=p.y-tH/2+lH*0.55;
+      const lH=isRad?12:13,tH=txts.length*lH,sY=p.y-tH/2+lH*0.55;
       t.setAttribute('x',p.x); t.setAttribute('y',sY+i*lH);
     });
-    const badge=txts[txts.length-1];
-    badge.setAttribute('x',p.x+w/2-4); badge.setAttribute('y',p.y-h/2+8);
   });
   drawConnections(tp, isRad);
 }
@@ -1045,13 +1044,13 @@ function buildMatrix(){
   const tbl=document.getElementById('mtbl'); tbl.innerHTML='';
 
   const CTYPES={
-    meis:    {color:'#7C6EF5',label:'MEİS'},
-    tech:    {color:'#16A97A',label:'Texnoloji'},
-    corp2ops:{color:'#E05A2B',label:'Korp→Əməl'},
-    ops2reg: {color:'#D4960A',label:'Əməl→Reyestr'},
-    reg2corp:{color:'#A855C8',label:'Reyestr↔Korp'},
-    reg2ops: {color:'#A855C8',label:'Reyestr↔Əməl'},
-    citizen: {color:'#2D8FE0',label:'Vətəndaş'},
+    meis:    {color:'#7C6EF5',label:'MEİS — Vahid Giriş'},
+    tech:    {color:'#16A97A',label:'Texnoloji Platforma'},
+    corp2ops:{color:'#E05A2B',label:'Əməliyyat Sistemləri'},
+    ops2reg: {color:'#D4960A',label:'Yol Reyestri'},
+    reg2corp:{color:'#A855C8',label:'Korporativ İdarəetmə'},
+    reg2ops: {color:'#A855C8',label:'Əməliyyat Sistemləri'},
+    citizen: {color:'#2D8FE0',label:'Vətəndaş İnterfeysi'},
   };
 
   // Header
