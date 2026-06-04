@@ -1,17 +1,24 @@
-<!DOCTYPE html>
+
+.<!DOCTYPE html>
 <html lang="az">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AAYDA — Azərbaycan Avtomobil Yolları Dövlət Agentliyinin rəqəmsal ekosistemi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#F0F2F7;min-height:100vh;
-  display:flex;flex-direction:column;align-items:center;padding:24px 16px;}
-h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:center}
-.subtitle{font-size:13px;color:#888;margin-bottom:14px;text-align:center}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#F0F2F7;
+  display:flex;flex-direction:column;align-items:center;padding:6px 6px 2px;}
+h1{font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:8px;text-align:center}
+.subtitle{font-size:12px;color:#888;margin-bottom:4px;text-align:center}
+.tick-legend{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  margin-bottom:6px;font-size:11.5px;color:#555;}
+.tick-legend span{display:flex;align-items:center;gap:4px;}
+.tl-green{color:#16A97A;font-weight:900;font-size:12px;}
+.tl-grey{color:#B8BFC9;font-weight:900;font-size:12px;}
 /* ── Top control bar ── */
-#top-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;
+#top-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;
   justify-content:center;width:100%;max-width:1300px;align-items:center;}
 .vbtn{border:2px solid #C5C9D6;background:#F5F6FA;border-radius:6px;
   padding:8px 16px;cursor:pointer;font-size:15px;line-height:1;font-family:inherit;
@@ -66,39 +73,59 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
   line-height:1.4;transition:all .1s;}
 .sb:hover{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;}
 .sb.sb-chk.checked{background:#D1FAE5;border-color:#047857;color:#047857;}
-#info{min-height:68px;padding:0;margin-bottom:14px;border-radius:14px;
+#info{padding:0;margin-bottom:4px;border-radius:10px;
   background:#fff;font-size:14px;line-height:1.8;color:#444;border:1.5px solid #E0E4EC;
   width:100%;max-width:1300px;box-shadow:0 2px 8px rgba(0,0,0,.07);
-  display:flex;overflow:hidden;}
-.info-main{flex:1;padding:18px 24px;min-width:0;}
-.info-side{width:230px;min-width:230px;border-left:2px solid #E0E4EC;padding:16px;
-  background:#F8F9FF;display:none;flex-direction:column;gap:8px;overflow-y:auto;}
-.info-side.open{display:flex;}
+  display:flex;overflow:hidden;align-items:stretch;}
+.info-main{flex:1;padding:16px 22px;min-width:0;display:flex;flex-direction:column;}
+.info-main-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  margin-bottom:8px;padding-bottom:10px;border-bottom:1px solid #eee;}
+.info-desc{font-size:13px;color:#555;line-height:1.65;flex:1;}
+.info-expand-hd{font-size:11.5px;font-weight:700;color:#aaa;cursor:pointer;
+  padding:8px 0 4px;border-top:1px dashed #E8EAF0;margin-top:10px;
+  display:flex;align-items:center;gap:5px;user-select:none;transition:color .1s;}
+.info-expand-hd:hover{color:#7C6EF5;}
+.info-expand-hd .xarr{font-size:9px;transition:transform .15s;display:inline-block;}
+.info-expand-hd.open .xarr{transform:rotate(180deg);}
+.info-expand-body{display:none;flex-wrap:wrap;gap:4px;padding:8px 0 4px;}
+.info-expand-body.open{display:flex;}
+.info-conn-chip{font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:6px;
+  cursor:pointer;border:1.5px solid;line-height:1.4;transition:opacity .1s,transform .08s;}
+.info-conn-chip:hover{opacity:.7;transform:translateY(-1px);}
+/* Dates panel */
+.info-dates{width:160px;min-width:160px;border-left:2px solid #E0E4EC;padding:14px;
+  background:#F8F9FF;display:none;flex-direction:column;gap:7px;}
+.info-dates.open{display:flex;}
+/* Meta panel */
+.info-meta{width:178px;min-width:178px;border-left:2px solid #E0E4EC;padding:14px;
+  background:#F4F6FF;display:none;flex-direction:column;gap:8px;}
+.info-meta.open{display:flex;}
 .is-hd{font-size:10px;font-weight:800;color:#aaa;letter-spacing:.7px;text-transform:uppercase;
   padding-bottom:6px;border-bottom:1px solid #E0E4EC;margin-bottom:2px;}
-.is-row{display:flex;flex-direction:column;gap:2px;padding:8px 10px;
+.is-row{display:flex;flex-direction:column;gap:2px;padding:7px 9px;
   background:#fff;border-radius:8px;border:1.5px solid #E0E4EC;}
 .is-lbl{font-size:10px;font-weight:700;color:#aaa;letter-spacing:.5px;text-transform:uppercase;}
 .is-val{font-size:13px;font-weight:600;color:#333;}
-.is-badge{font-size:11px;font-weight:700;background:#FEF3C7;border:1.5px solid #F59E0B;
-  color:#92400E;border-radius:8px;padding:7px 10px;text-align:center;}
+.is-stat{display:flex;justify-content:space-between;align-items:center;
+  padding:6px 9px;background:#fff;border-radius:8px;border:1.5px solid #E0E4EC;
+  font-size:11.5px;color:#666;}
+.is-stat b{font-size:13px;font-weight:800;color:#333;}
 .is-nav{font-size:12px;font-weight:700;background:#F3F4FA;border:2px solid #D0D4E0;
   border-radius:8px;padding:8px 10px;cursor:pointer;color:#555;font-family:inherit;
   text-align:center;width:100%;transition:all .1s;display:flex;align-items:center;
   justify-content:center;gap:6px;}
 .is-nav:hover{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;}
-.is-date-input{font-size:13px;font-weight:600;color:#333;border:1.5px solid #E0E4EC;
-  border-radius:6px;padding:4px 8px;width:100%;font-family:inherit;background:#fff;
+.is-ft-btn{font-size:12px;font-weight:700;border-radius:8px;padding:9px 10px;
+  font-family:inherit;text-align:center;width:100%;border:2px solid;transition:all .1s;
+  display:flex;align-items:center;justify-content:center;gap:5px;}
+.is-ft-btn.ft-on{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;cursor:pointer;}
+.is-ft-btn.ft-on:hover{background:#DDD6FE;border-color:#5B4ECC;}
+.is-ft-btn.ft-off{background:#F3F4FA;border-color:#E0E4EC;color:#ccc;cursor:default;}
+.is-date-input{font-size:12.5px;font-weight:600;color:#333;border:1.5px solid #E0E4EC;
+  border-radius:6px;padding:4px 7px;width:100%;font-family:inherit;background:#fff;
   cursor:pointer;margin-top:2px;}
-.is-date-input:focus{outline:none;border-color:#7C6EF5;box-shadow:0 0 0 2px #7C6EF520;}
-#info strong{color:#111;font-weight:700;font-size:16px;display:block;margin-bottom:5px}
-.rtags{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;border-top:1px solid #eee;padding-top:8px;}
-.rtag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;border-radius:8px;
-  padding:5px 12px;font-weight:500;}
-.rtag .rc{font-size:10.5px;font-weight:800;font-family:monospace;background:rgba(0,0,0,.12);
-  border-radius:4px;padding:2px 5px;}
-.rtag .al{font-size:10.5px;font-weight:700;font-family:monospace;background:rgba(0,0,0,.08);
-  border-radius:4px;padding:2px 6px;color:#333;}
+.is-date-input:focus{outline:none;}
+.is-date-input[readonly]{background:#F5F6FA;cursor:default;color:#555;border-color:#E8EAF0;}
 #canvas-wrap{background:#fff;border-radius:20px;border:1.5px solid #E0E4EC;
   box-shadow:0 2px 12px rgba(0,0,0,.07);width:100%;max-width:1300px;overflow:auto;
   display:flex;justify-content:center;}
@@ -106,12 +133,12 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
   border:1.5px solid #E0E4EC;box-shadow:0 2px 12px rgba(0,0,0,.07);
   overflow:auto;max-height:72vh;}
 #mtbl{border-collapse:collapse;width:100%;}
-#mtbl th{background:#F3F5FA;font-weight:700;font-size:13px;border:1px solid #DDE1EA;
-  padding:11px 12px;text-align:center;position:sticky;top:0;z-index:2;white-space:nowrap;}
-#mtbl .rh{text-align:left;font-size:13px;font-weight:600;border:1px solid #DDE1EA;
-  padding:9px 16px;position:sticky;left:0;background:#fff;z-index:1;
-  min-width:185px;white-space:nowrap;transition:background .12s;}
-#mtbl td{border:1px solid #DDE1EA;padding:7px 8px;text-align:center;font-size:13px;
+#mtbl th{background:#F3F5FA;font-weight:700;font-size:12px;border:1px solid #DDE1EA;
+  padding:6px 8px;text-align:center;position:sticky;top:0;z-index:2;white-space:nowrap;}
+#mtbl .rh{text-align:left;font-size:12px;font-weight:600;border:1px solid #DDE1EA;
+  padding:5px 10px;position:sticky;left:0;background:#fff;z-index:1;
+  min-width:175px;white-space:nowrap;transition:background .12s;}
+#mtbl td{border:1px solid #DDE1EA;padding:4px 6px;text-align:center;font-size:12px;
   transition:background .12s;}
 #mtbl tbody tr:hover td,#mtbl tbody tr:hover .rh{background:#EEF2FF!important;cursor:pointer;}
 #mtbl tbody tr.mat-active td,#mtbl tbody tr.mat-active .rh{background:#EEEAFF!important;}
@@ -133,19 +160,20 @@ svg text{font-family:'Segoe UI',system-ui,sans-serif;pointer-events:none}
 #node-tt .tt-item{color:#333;padding:3px 0;display:flex;align-items:center;gap:7px;font-size:12.5px;}
 #node-tt .tt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 #node-tt .tt-more{color:#bbb;font-size:11.5px;font-style:italic;padding:2px 0;}
-footer{margin-top:18px;font-size:12px;color:#bbb;text-align:center}
+footer{margin-top:6px;font-size:11px;color:#bbb;text-align:center}
+#canvas-wrap{margin-bottom:0}
+#matrix-wrap{max-height:calc(100vh - 160px)}
 </style>
 </head>
 <body>
 <h1>Azərbaycan Avtomobil Yolları Dövlət Agentliyinin rəqəmsal ekosistemi</h1>
-<p class="subtitle">Sistemə toxunun — əlaqəli xətlər görünəcək · Boş yerə basın — sıfırlayın</p>
-
 <div id="top-bar">
   <button class="vbtn active" id="btn-col" onclick="setView('col')">⊞ Sütun</button>
   <button class="vbtn" id="btn-rad" onclick="setView('rad')">◎ Çevrə</button>
   <button class="vbtn" id="btn-mat" onclick="setView('mat')">⊟ Cədvəl</button>
   <span style="width:1px;height:28px;background:#E0E4EC;margin:0 4px;display:inline-block"></span>
   <button class="cs-toggle" data-panel="conns" onclick="togglePanel('conns')">Əlaqə növləri <span class="cs-arr">▾</span></button>
+  <button class="cs-toggle" data-panel="ticks" onclick="togglePanel('ticks')">Status <span class="cs-arr">▾</span></button>
 </div>
 
 <div id="panel-conns" class="cs-panel">
@@ -157,11 +185,29 @@ footer{margin-top:18px;font-size:12px;color:#bbb;text-align:center}
   <div class="cl"><div class="cl-line" style="background:#2D8FE0"></div>Vətəndaş İnterfeysi</div>
 </div>
 
+<div id="panel-ticks" class="cs-panel">
+  <div class="cl tick-filter-item" data-tick="gg" onclick="showTickSystems('gg')" style="cursor:pointer;border-radius:6px;padding:4px 8px;transition:background .1s" onmouseover="this.style.background='#F5F6FA'" onmouseout="this.style.background=''">
+    <div style="display:flex;gap:1px;width:26px;justify-content:center"><span style="color:#16A97A;font-weight:900;font-size:14px">✓</span><span style="color:#16A97A;font-weight:900;font-size:14px">✓</span></div>Quraşdırılıb</div>
+  <div class="cl tick-filter-item" data-tick="gb" onclick="showTickSystems('gb')" style="cursor:pointer;border-radius:6px;padding:4px 8px;transition:background .1s" onmouseover="this.style.background='#F5F6FA'" onmouseout="this.style.background=''">
+    <div style="display:flex;gap:1px;width:26px;justify-content:center"><span style="color:#16A97A;font-weight:900;font-size:14px">✓</span><span style="color:#B8BFC9;font-weight:900;font-size:14px">✓</span></div>Quraşdırılma ərəfəsidir</div>
+  <div class="cl tick-filter-item" data-tick="bb" onclick="showTickSystems('bb')" style="cursor:pointer;border-radius:6px;padding:4px 8px;transition:background .1s" onmouseover="this.style.background='#F5F6FA'" onmouseout="this.style.background=''">
+    <div style="display:flex;gap:1px;width:26px;justify-content:center"><span style="color:#B8BFC9;font-weight:900;font-size:14px">✓</span><span style="color:#B8BFC9;font-weight:900;font-size:14px">✓</span></div>Funksional tələb hazırlanır</div>
+  <div class="cl tick-filter-item" data-tick="b" onclick="showTickSystems('b')" style="cursor:pointer;border-radius:6px;padding:4px 8px;transition:background .1s" onmouseover="this.style.background='#F5F6FA'" onmouseout="this.style.background=''">
+    <div style="display:flex;gap:1px;width:26px;justify-content:center"><span style="color:#B8BFC9;font-weight:900;font-size:14px">✓</span></div>Sistemin qurulması təsdiqlənib</div>
+</div>
+<div id="tick-sys-panel" style="display:none;width:100%;max-width:1300px;background:#fff;border:1.5px solid #E0E4EC;border-radius:10px;padding:12px 16px;margin-bottom:6px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <span id="tick-sys-label" style="font-size:12px;font-weight:800;color:#555;letter-spacing:.5px;text-transform:uppercase"></span>
+    <button onclick="document.getElementById('tick-sys-panel').style.display='none'" style="font-size:11px;color:#aaa;background:none;border:none;cursor:pointer;font-weight:700">✕ Bağla</button>
+  </div>
+  <div id="tick-sys-list" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+</div>
+
 
 <div id="info"><div class="info-main" style="color:#aaa;font-size:14px">Sistemin üzərinə toxunun — əlaqəli xətlər və rol cədvəli görünəcək</div></div>
 
 <div id="canvas-wrap">
-<svg id="svg" width="1300" height="645" viewBox="0 0 1300 645">
+<svg id="svg" width="1300" height="498" viewBox="0 0 1300 498">
 <defs>
   <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5"
     markerWidth="4" markerHeight="4" orient="auto-start-reverse">
@@ -169,27 +215,27 @@ footer{margin-top:18px;font-size:12px;color:#bbb;text-align:center}
       stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
   </marker>
 </defs>
-<rect class="zone-bg" x="14" y="12" width="175" height="62" rx="14"
+<rect class="zone-bg" x="14" y="12" width="175" height="56" rx="14"
   fill="#EEEAFF" stroke="#7C6EF5" stroke-width="1.2" stroke-dasharray="5,4"/>
-<rect class="zone-bg" x="14" y="88" width="175" height="537" rx="14"
+<rect class="zone-bg" x="14" y="69" width="175" height="413" rx="14"
   fill="#EEF9F4" stroke="#16A97A" stroke-width="1" stroke-dasharray="5,4"/>
-<text class="zone-bg" x="101" y="106" text-anchor="middle" font-size="11"
+<text class="zone-bg" x="101" y="83" text-anchor="middle" font-size="10"
   font-weight="700" fill="#16A97A" letter-spacing="1">TEXNOLOJI PLATFORMA</text>
-<rect class="zone-bg" x="203" y="12" width="175" height="613" rx="14"
+<rect class="zone-bg" x="203" y="12" width="175" height="470" rx="14"
   fill="#FEF3EE" stroke="#E05A2B" stroke-width="1" stroke-dasharray="5,4"/>
-<text class="zone-bg" x="290" y="30" text-anchor="middle" font-size="11"
+<text class="zone-bg" x="290" y="25" text-anchor="middle" font-size="10"
   font-weight="700" fill="#E05A2B" letter-spacing="1">KORPORATİV İDARƏETMƏ</text>
-<rect class="zone-bg" x="392" y="12" width="175" height="613" rx="14"
+<rect class="zone-bg" x="392" y="12" width="175" height="470" rx="14"
   fill="#F8F0FF" stroke="#A855C8" stroke-width="1" stroke-dasharray="5,4"/>
-<text class="zone-bg" x="479" y="30" text-anchor="middle" font-size="11"
+<text class="zone-bg" x="479" y="25" text-anchor="middle" font-size="10"
   font-weight="700" fill="#A855C8" letter-spacing="1">REYESTR</text>
-<rect class="zone-bg" x="581" y="12" width="430" height="613" rx="14"
+<rect class="zone-bg" x="581" y="12" width="430" height="470" rx="14"
   fill="#FEFBEE" stroke="#D4960A" stroke-width="1" stroke-dasharray="5,4"/>
-<text class="zone-bg" x="796" y="30" text-anchor="middle" font-size="11"
+<text class="zone-bg" x="796" y="25" text-anchor="middle" font-size="10"
   font-weight="700" fill="#D4960A" letter-spacing="1">ƏMƏLİYYAT SİSTEMLƏRİ</text>
-<rect class="zone-bg" x="1025" y="12" width="262" height="613" rx="14"
+<rect class="zone-bg" x="1025" y="12" width="262" height="470" rx="14"
   fill="#EEF6FF" stroke="#2D8FE0" stroke-width="1" stroke-dasharray="5,4"/>
-<text class="zone-bg" x="1156" y="30" text-anchor="middle" font-size="11"
+<text class="zone-bg" x="1156" y="25" text-anchor="middle" font-size="10"
   font-weight="700" fill="#2D8FE0" letter-spacing="1">VƏTƏNDAŞ İNTERFEYSİ</text>
 <g id="rings"></g>
 <g id="connections"></g>
@@ -199,9 +245,20 @@ footer{margin-top:18px;font-size:12px;color:#bbb;text-align:center}
 
 <div id="matrix-wrap"><table id="mtbl"></table></div>
 <div id="node-tt"></div>
-<footer>HTML faylını brauzerinizdə açın — internet bağlantısı tələb olunmur</footer>
+<footer>hazırlanmışdır AISTGroup</footer>
 
 <script>
+// gg=2 green, gb=1 green+1 grey, bb=2 grey, b=1 grey tick only
+const SYS_TICK={
+  meis:'gg',esened:'gg',
+  reyestr:'gb',toll:'gb',hr:'gb',mygov:'gb',odenis:'gb',portal:'gb',audit:'gb',tehlu:'gb',
+  api:'bb',bi:'bb',dw:'bb',notify:'bb',storage:'bb',mobile:'bb',halga:'bb',task:'bb',
+  arxiv:'bb',vasite:'bb',budce:'bb',neqliyyat:'bb',tikinti:'bb',monitorinq:'bb',
+  istisman:'bb',icaze:'bb',komm:'bb',yolknar:'bb',xerite:'bb',mehdudat:'bb',chatbot:'bb',
+  torpaq:'b',ekologiya:'b'
+};
+const TICK_GREEN='#16A97A', TICK_GREY='#B8BFC9';
+
 const COLORS={
   meis:   {fill:'#EEEAFF',stroke:'#7C6EF5',text:'#4A3DB8'},
   tech:   {fill:'#E2F8EF',stroke:'#16A97A',text:'#0A5C3F'},
@@ -237,103 +294,103 @@ const NW=155,NH=40;
 const X={meis:101,tech:101,corp:290,reg:479,ops:796,citizen:1156};
 
 const systems=[
-  {id:'meis',      lines:['MEİS'],                                        color:'meis',    x:X.meis,    y:43,
+  {id:'meis',      lines:['MEİS'],                                        color:'meis',    x:X.meis,    y:38,
    label:'MEİS — Mərkəzləşdirilmiş Elektron İnformasiya Sistemi',
    desc:'Bütün sistemlər üçün vahid istifadəçi idarəetməsi, autentifikasiya, giriş nəzarəti, audit mexanizmləri və köməkçi funksionallıqları özündə ehtiva edən mərkəzi platform.'},
-  {id:'api',       lines:['İnteqrasiya','Platforması (API/ESB)'],          color:'tech',    x:X.tech,    y:140,
+  {id:'api',       lines:['İnteqrasiya','Platforması (API/ESB)'],          color:'tech',    x:X.tech,    y:113,
    label:'İnteqrasiya Platforması (API/ESB)',
    desc:'Daxili və xarici sistemlər arasında standartlaşdırılmış, təhlükəsiz məlumat mübadiləsini təmin edən inteqrasiya infrastrukturu.'},
-  {id:'bi',        lines:['Mərkəzi Analitika','(BI Paneli)'],              color:'tech',    x:X.tech,    y:212,
+  {id:'bi',        lines:['Mərkəzi Analitika','(BI Paneli)'],              color:'tech',    x:X.tech,    y:169,
    label:'Mərkəzi Analitika və İdarəetmə Paneli (BI)',
    desc:'KPI-lar, analitik hesabatlar, layihə dashboardları — real vaxt rejimində rəhbərlik üçün vizuallaşdırma platforması.'},
-  {id:'dw',        lines:['Məlumat Anbarı','(Data Warehouse)'],            color:'tech',    x:X.tech,    y:284,
+  {id:'dw',        lines:['Məlumat Anbarı','(Data Warehouse)'],            color:'tech',    x:X.tech,    y:225,
    label:'Məlumat Anbarı (Data Warehouse)',
    desc:'Müxtəlif mənbələrdən məlumatların inteqrasiyası, tarixçə üzrə saxlanması, analitik emal üçün strukturlaşdırılmış mərkəzi məlumat platforması.'},
-  {id:'notify',    lines:['Bildiriş','Kommunikasiya Xidməti'],             color:'tech',    x:X.tech,    y:356,
+  {id:'notify',    lines:['Bildiriş','Kommunikasiya Xidməti'],             color:'tech',    x:X.tech,    y:281,
    label:'Bildiriş və Kommunikasiya Xidməti',
    desc:'SMS, e-mail və digər kanallar vasitəsilə avtomatlaşdırılmış bildirişlər: hadisələr, xəbərdarlıqlar, proses yeniləmələri.'},
-  {id:'storage',   lines:['Fayl və Sənəd','Saxlama Xidməti'],              color:'tech',    x:X.tech,    y:428,
+  {id:'storage',   lines:['Fayl və Sənəd','Saxlama Xidməti'],              color:'tech',    x:X.tech,    y:337,
    label:'Mərkəzləşdirilmiş Fayl və Sənəd Saxlama Xidməti',
    desc:'Bütün sistemlər üzrə sənədlər, fayllar, media: saxlanma, versiyalaşdırma, API idarəetmə.'},
-  {id:'mobile',    lines:['Mobil Sahə','Əməliyyatları Platforması'],       color:'tech',    x:X.tech,    y:500,
+  {id:'mobile',    lines:['Mobil Sahə','Əməliyyatları Platforması'],       color:'tech',    x:X.tech,    y:393,
    label:'Mobil Sahə Əməliyyatları Platforması',
    desc:'Sahə əməkdaşlarının mobil cihazla məlumat toplaması, tapşırıq icrası, real vaxt sinxronizasiyası.'},
   {id:'esened',    lines:['eSənəd'],                                       color:'corp',    x:X.corp,    y:60,
    label:'eSənəd — Elektron Sənəd Dövriyyəsi Sistemi',
    desc:'Rəsmi sənədlərin yaradılması, razılaşdırılması, elektron imzalanması, dövriyyəsi və arxivləşdirilməsi.'},
-  {id:'halga',     lines:['halga','(CRM / Müraciət / Çağrı)'],            color:'corp',    x:X.corp,    y:130,
+  {id:'halga',     lines:['halga','(CRM / Müraciət / Çağrı)'],            color:'corp',    x:X.corp,    y:116,
    label:'halga — Vətəndaş Müraciətləri, CRM və Çağrı Mərkəzi',
    desc:'Vətəndaş müraciətlərinin qəbulu, qeydiyyatı, çağrı mərkəzi funksionallığı ilə genişləndirilmiş CRM sistemi.'},
-  {id:'task',      lines:['Tapşırıqların','İdarəetmə (TİS)'],              color:'corp',    x:X.corp,    y:200,
+  {id:'task',      lines:['Tapşırıqların','İdarəetmə (TİS)'],              color:'corp',    x:X.corp,    y:172,
    label:'Tapşırıqların İdarəetmə Sistemi (TİS)',
    desc:'Tapşırıqların planlaşdırılması, məsul şəxslərə yönləndirilməsi, icra statuslarının izlənməsi.'},
-  {id:'hr',        lines:['İnsan Resursları','Sistemi'],                   color:'corp',    x:X.corp,    y:270,
+  {id:'hr',        lines:['İnsan Resursları','Sistemi'],                   color:'corp',    x:X.corp,    y:228,
    label:'İnsan Resursları Sistemi',
    desc:'Kadr məlumatları, əmək münasibətləri, işçi heyəti planlaşdırılması və performans izlənməsi.'},
-  {id:'arxiv',     lines:['Elektron Arxiv','Sənəd İdarəetmə'],            color:'corp',    x:X.corp,    y:340,
+  {id:'arxiv',     lines:['Elektron Arxiv','Sənəd İdarəetmə'],            color:'corp',    x:X.corp,    y:284,
    label:'Elektron Arxiv və Sənəd İntellektual İdarəetmə Sistemi',
    desc:'Sənədlərin rəqəmsallaşdırılması, OCR tanıması, avtomatik kateqoriyalaşdırma, semantik axtarış.'},
-  {id:'vasite',    lines:['Əsas Vəsaitlər','və Anbar Sistemi'],           color:'corp',    x:X.corp,    y:410,
+  {id:'vasite',    lines:['Əsas Vəsaitlər','və Anbar Sistemi'],           color:'corp',    x:X.corp,    y:340,
    label:'Əsas Vəsaitlərin və Anbarın İdarəetmə Sistemi',
    desc:'Avadanlıqlar, materiallar, ehtiyat hissələri: qeydiyyat, anbar yerləşdirməsi, qalıqların real vaxt izlənməsi.'},
-  {id:'budce',     lines:['Büdcə','İnvestisiya Planlaşdırma'],            color:'corp',    x:X.corp,    y:480,
+  {id:'budce',     lines:['Büdcə','İnvestisiya Planlaşdırma'],            color:'corp',    x:X.corp,    y:396,
    label:'Büdcə və İnvestisiya Planlaşdırma Sistemi',
    desc:'İnvestisiya əsaslandırması, layihə prioritetləşdirilməsi, büdcə bölgüsü, maliyyə planlaşdırması.'},
-  {id:'audit',     lines:['Audit','Uyğunluq Nəzarəti'],                   color:'corp',    x:X.corp,    y:550,
+  {id:'audit',     lines:['Audit','Uyğunluq Nəzarəti'],                   color:'corp',    x:X.corp,    y:452,
    label:'Audit və Uyğunluq Nəzarəti Sistemi',
    desc:'Daxili nəzarət, audit yoxlamaları, normativ tələblərə uyğunluq qiymətləndirməsi, pozuntuların izlənməsi.'},
-  {id:'reyestr',   lines:['Yol Reyestri','Aktivlərin İdarəedilməsi'],     color:'reg',     x:X.reg,     y:310,
+  {id:'reyestr',   lines:['Yol Reyestri','Aktivlərin İdarəedilməsi'],     color:'reg',     x:X.reg,     y:256,
    label:'Yol Reyestri və Aktivlərin İdarəedilməsi Sistemi',
    desc:'Yollar, seqmentlər, infrastruktur aktivlər üzrə GİS, hüquqi, texniki məlumatların vahid model əsasında mərkəzi qeydiyyatı.'},
   {id:'toll',      lines:['Ödənişli Yollar','Əməliyyat Platforması'],     color:'ops',     x:X.ops,     y:60,
    label:'Ödənişli Yollar üzrə Mərkəzi Əməliyyat Platforması',
    desc:'Tariflər, keçid əməliyyatları, ANPR/LPR kameralar, RFID/ETC, şlaqbaum, pozuntu aşkarlanması, borc uçotu.'},
-  {id:'neqliyyat', lines:['Nəqliyyat','Mexanizmlər Sistemi'],             color:'ops',     x:X.ops-105, y:150,
+  {id:'neqliyyat', lines:['Nəqliyyat','Mexanizmlər Sistemi'],             color:'ops',     x:X.ops-105, y:116,
    label:'Nəqliyyat və Mexanizmlərin İdarəetmə Sistemi',
    desc:'Avtonəqliyyat, xüsusi texnika: GPS izlənmə, yanacaq sərfiyyatı, texniki vəziyyət, istifadə intensivliyi.'},
-  {id:'tikinti',   lines:['Layihə Tikinti','Müqavilə Sistemi'],           color:'ops',     x:X.ops+105, y:150,
+  {id:'tikinti',   lines:['Layihə Tikinti','Müqavilə Sistemi'],           color:'ops',     x:X.ops+105, y:116,
    label:'Yol Layihə, Tikinti və Müqavilə İdarəetmə Sistemi',
    desc:'Layihə planlaşdırması, tikinti idarəetməsi, müəllif/texniki nəzarət, podratçı seçimi, müqavilə icrası.'},
-  {id:'monitorinq',lines:['Yol Monitorinq','və Diaqnostika'],             color:'ops',     x:X.ops-105, y:240,
+  {id:'monitorinq',lines:['Yol Monitorinq','və Diaqnostika'],             color:'ops',     x:X.ops-105, y:172,
    label:'Yol Monitorinq və Diaqnostika Platforması',
    desc:'Sensorlar, IoT, tərəzilər, video müşahidə: real vaxt toplama, hadisə aşkarlama, texniki vəziyyət monitorinqi.'},
-  {id:'istisman',  lines:['İstismar Təmir','Sahə Əməliyyatları'],         color:'ops',     x:X.ops+105, y:240,
+  {id:'istisman',  lines:['İstismar Təmir','Sahə Əməliyyatları'],         color:'ops',     x:X.ops+105, y:172,
    label:'Yol İstismar, Təmir və Sahə Əməliyyatları Sistemi',
    desc:'Nasazlıq qeydiyyatı, prioritetləşdirmə, sahə briqadalarına yönləndirmə, icra nəticələrinin izlənməsi.'},
-  {id:'tehlu',     lines:['Yol Təhlükəsizliyi','Trafik Analitika'],       color:'ops',     x:X.ops-105, y:330,
+  {id:'tehlu',     lines:['Yol Təhlükəsizliyi','Trafik Analitika'],       color:'ops',     x:X.ops-105, y:228,
    label:'Yol Təhlükəsizliyi və Trafik Analitika Sistemi',
    desc:'Qəza məlumatları, trafik göstəriciləri, risklərin analizi, təhlükəli sahələrin müəyyənləşdirilməsi.'},
-  {id:'icaze',     lines:['Ağır Nəqliyyat','İcazə Sistemi'],              color:'ops',     x:X.ops+105, y:330,
+  {id:'icaze',     lines:['Ağır Nəqliyyat','İcazə Sistemi'],              color:'ops',     x:X.ops+105, y:228,
    label:'Ağır və İriqabaritli Nəqliyyat İcazə Sistemi',
    desc:'Normadan artıq çəkili nəqliyyat: marşrut uyğunluğu, yol aktivlərinə təsir analizi, icazə prosesi.'},
-  {id:'komm',      lines:['Kommunikasiya','Keçidləri İcazə'],             color:'ops',     x:X.ops-105, y:420,
+  {id:'komm',      lines:['Kommunikasiya','Keçidləri İcazə'],             color:'ops',     x:X.ops-105, y:284,
    label:'Kommunikasiya Keçidləri və İcazə İdarəetmə Sistemi',
    desc:'Yollar üzərindəki mühəndis kommunikasiya xətlərinin planlaşdırılması, razılaşdırılması, icazə verilməsi.'},
-  {id:'yolknar',   lines:['Yolkənarı Xidmət','İnfrastrukturu'],          color:'ops',     x:X.ops+105, y:420,
+  {id:'yolknar',   lines:['Yolkənarı Xidmət','İnfrastrukturu'],          color:'ops',     x:X.ops+105, y:284,
    label:'Yolkənarı Xidmət İnfrastrukturu İdarəetmə Sistemi',
    desc:'Dayanacaqlar, istirahət zonaları, xidmət sahələri: status, istifadə, inkişaf planları, birləşmə texniki şərtlər.'},
-  {id:'torpaq',    lines:['Yol Torpaq Sahəsi','Hüquqi Nəzarət'],         color:'ops',     x:X.ops-105, y:510,
+  {id:'torpaq',    lines:['Yol Torpaq Sahəsi','Hüquqi Nəzarət'],         color:'ops',     x:X.ops-105, y:340,
    label:'Yol Torpaq Sahəsi və Hüquqi Nəzarət Modulu',
    desc:'Yol torpaq sahələri GİS uçotu, qanunsuz tikililərin foto+geolokasiya ilə aşkarlanması, hüquqi tədbirlərin başlanması.'},
-  {id:'ekologiya', lines:['Yaşıllıq','Ekoloji İdarəetmə'],               color:'ops',     x:X.ops+105, y:510,
+  {id:'ekologiya', lines:['Yaşıllıq','Ekoloji İdarəetmə'],               color:'ops',     x:X.ops+105, y:340,
    label:'Yaşıllıq və Ekoloji İdarəetmə Modulu',
    desc:'Yaşıllıq zolaqları, qoruyucu meşə sahələri: məkan uçotu, yaşıllaşdırma planlaşdırma, bərpa-qulluq izlənməsi.'},
-  {id:'mygov',     lines:['myGOV','Vətəndaş Müraciətləri'],              color:'citizen', x:X.citizen, y:65,
+  {id:'mygov',     lines:['myGOV','Vətəndaş Müraciətləri'],              color:'citizen', x:X.citizen, y:60,
    label:'myGOV Vətəndaş Müraciətləri eXidməti',
    desc:'myGOV platforması üzərindən vətəndaş müraciətlərinin qəbulu, İnteqrasiya Platforması vasitəsilə CRM sisteminə ötürülməsi.'},
-  {id:'odenis',    lines:['Ödənişli Yollar','Onlayn Ödəniş'],            color:'citizen', x:X.citizen, y:165,
+  {id:'odenis',    lines:['Ödənişli Yollar','Onlayn Ödəniş'],            color:'citizen', x:X.citizen, y:116,
    label:'Ödənişli Yollar üzrə Onlayn Ödəniş Xidməti',
    desc:'Birbank, m10, ABB mobile, AzParking vasitəsilə keçid haqqı hesablanması, elektron ödəniş.'},
-  {id:'xerite',    lines:['İnteraktiv','Yol Xəritəsi'],                   color:'citizen', x:X.citizen, y:265,
+  {id:'xerite',    lines:['İnteraktiv','Yol Xəritəsi'],                   color:'citizen', x:X.citizen, y:172,
    label:'İctimai İnteraktiv Yol Xəritəsi',
    desc:'Yol şəbəkəsi, kateqoriyalar, aktivlər, məhdudiyyət məlumatları: vətəndaşlar üçün interaktiv xəritə.'},
-  {id:'mehdudat',  lines:['Yol Məhdudiyyətləri','Məlumat Lövhəsi'],      color:'citizen', x:X.citizen, y:365,
+  {id:'mehdudat',  lines:['Yol Məhdudiyyətləri','Məlumat Lövhəsi'],      color:'citizen', x:X.citizen, y:228,
    label:'Yol Məhdudiyyətləri və Operativ Məlumat Lövhəsi',
    desc:'Müvəqqəti hərəkət məhdudiyyətləri, bağlanmalar, alternativ istiqamətlər — real vaxt.'},
-  {id:'portal',    lines:['Açıq Məlumat','Hesabat Portalı'],              color:'citizen', x:X.citizen, y:465,
+  {id:'portal',    lines:['Açıq Məlumat','Hesabat Portalı'],              color:'citizen', x:X.citizen, y:284,
    label:'Açıq Məlumat və İctimai Hesabat Portalı',
    desc:'Agentliyin açıq statistikası, layihə statusları, ictimai hesabatlar — inteqrasiya ilə yenilənən portal.'},
-  {id:'chatbot',   lines:['Vətəndaş','AI Chatbot'],                       color:'citizen', x:X.citizen, y:565,
+  {id:'chatbot',   lines:['Vətəndaş','AI Chatbot'],                       color:'citizen', x:X.citizen, y:340,
    label:'Vətəndaş AI Chatbot',
    desc:'Agentlik xidmətləri, yollar, müraciət prosedurları üzrə süni intellekt əsaslı informasiya komponenti.'},
 ];
@@ -537,38 +594,38 @@ const ALABEL={
 };
 const SYSDESC={
   meis:"Mərkəzləşdirilmiş Elektron İnformasiya Sistemi. Bütün informasiya sistemləri üçün vahid istifadəçi idarəetməsi, autentifikasiya və giriş nəzarəti, təhlükəsizlik siyasətləri və audit mexanizmlərini təmin edən, təqvim, yardım masası və s. kimi funksionallığı özündə ehtiva edən mərkəzi platformadır.",
-  bi:"Müxtəlif sistemlərdən daxil olan məlumatlar əsasında analitik hesabatların, KPI-ların və idarəetmə panellərinin formalaşdırılmasını təmin edən platformadır. Platforma yol tikintisi və təmiri layihələri üzrə rəhbərlik üçün xüsusi dashboardların yaradılmasını, layihələrin cari vəziyyəti, icra faizləri, gecikmələr, risklər, maliyyə göstəriciləri üzrə vizuallaşdırmalar əmin edir.",
+  bi:"Müxtəlif sistemlərdən daxil olan məlumatlar əsasında analitik hesabatların, əsas performans göstəricilərinin (KPI) və idarəetmə panellərinin formalaşdırılmasını təmin edən platformadır. Platforma əlavə olaraq yol tikintisi və təmiri layihələri üzrə rəhbərlik üçün xüsusi idarəetmə panellərinin yaradılmasını təmin edir. Bu panellər vasitəsilə layihələrin cari vəziyyəti, icra faizləri, gecikmələr, risklər, maliyyə göstəriciləri, müqavilə icrası və digər əsas indikatorlar real vaxt rejimində vizuallaşdırılır. Sistem layihələr üzrə müqayisəli analizlərin aparılmasını, kritik problemlərin erkən aşkar edilməsini və qərarvermə prosesinin operativ və məlumat əsaslı həyata keçirilməsini təmin edir.",
   api:"Daxili və xarici sistemlər arasında standartlaşdırılmış və təhlükəsiz məlumat mübadiləsini təmin edən inteqrasiya infrastrukturu.",
-  notify:"İstifadəçilərə və maraqlı tərəflərə SMS, e-mail və digər kanallar vasitəsilə avtomatlaşdırılmış bildirişlərin göndərilməsini təmin edən xidmət.",
-  storage:"Bütün sistemlər üzrə sənədlərin, faylların və media məlumatlarının saxlanılmasını, versiyalaşdırılmasını və API vasitəsilə idarə olunmasını təmin edən mərkəzi saxlama xidmətidir.",
+  notify:"İstifadəçilərə və maraqlı tərəflərə qısa mesaj (SMS), elektron poçt (e-mail) və digər kanallar vasitəsilə avtomatlaşdırılmış bildirişlərin göndərilməsini təmin edən xidmət.",
+  storage:"Bütün sistemlər üzrə sənədlərin, faylların və media məlumatlarının saxlanılmasını, versiyalaşdırılmasını və proqram interfeysi (API) vasitəsilə idarə olunmasını təmin edən mərkəzi saxlama xidmətidir.",
   dw:"Müxtəlif mənbələrdən daxil olan məlumatların inteqrasiyasını, tarixçə üzrə saxlanmasını və analitik emal üçün strukturlaşdırılmış şəkildə təqdim olunmasını təmin edən mərkəzi məlumat platformasıdır.",
   mobile:"Sahə əməkdaşlarının mobil cihazlar vasitəsilə məlumat toplamasını, tapşırıqları icra etməsini və real vaxt rejimində mərkəzi sistemlərlə sinxron işləməsini təmin edən platformadır.",
   esened:"Elektron Sənəd Dövriyyəsi Sistemi. Rəsmi sənədlərin yaradılması, razılaşdırılması, imzalanması, dövriyyəsi və arxivləşdirilməsini elektron formada təmin edən sənəd idarəetmə sistemidir.",
-  halga:"Daxili IP telefoniya, vətəndaş müraciətlərinin, şikayət və təkliflərin qəbulu, qeydiyyatı, təsnifləşdirilməsi və icra prosesinin izlənməsini, çağrı mərkəzi funksionallığı ilə birlikdə, daxil olan zənglərin avtomatik qeydiyyatını, zənglərin operatorlar üzrə yönləndirilməsini, müraciətlərin prioritetləşdirilməsini təmin edən sistemdir.",
-  task:"Müxtəlif sistemlər, layihələr və struktur bölmələri üzrə tapşırıqların, fəaliyyətlərin və iş axınlarının planlaşdırılmasını, təyin edilməsini, izlənilməsini və nəzarətini; tapşırıqların prioritetləşdirilməsini, məsul şəxslərə yönləndirilməsini, icra statuslarının izlənilməsini, gecikmələrin aşkarlanmasını təmin edən platformadır.",
+  halga:"Daxili İnternet Protokolu (IP) telefoniya, vətəndaş müraciətlərinin, şikayət və təkliflərin qəbulu, qeydiyyatı, təsnifləşdirilməsi və icra prosesinin izlənməsini təmin edən sistemdir. Sistem əlavə olaraq çağrı mərkəzi (Call Center) funksionallığı ilə genişləndirilərək daxil olan zənglərin avtomatik qeydiyyatını, səs yazılarının saxlanılmasını, zənglərin operatorlar üzrə yönləndirilməsini, növbə və cavablandırma mexanizmlərini, müraciətlərin telefon üzərindən birbaşa sistemdə açılmasını və bütün kommunikasiya tarixçəsinin vahid profil üzrə idarə olunmasını təmin edir. Sistem müraciətlərin prioritetləşdirilməsini, aidiyyəti struktur bölmələrə yönləndirilməsini və icra vəziyyətinin real vaxt rejimində izlənməsini təmin edir.",
+  task:"Müxtəlif sistemlər, layihələr və struktur bölmələri üzrə tapşırıqların, fəaliyyətlərin və iş axınlarının planlaşdırılmasını, təyin edilməsini, izlənilməsini və nəzarətini təmin edən platformadır. Sistem tapşırıqların prioritetləşdirilməsini, məsul şəxslərə yönləndirilməsini, icra statuslarının izlənilməsini, gecikmələrin və risklərin aşkarlanmasını dəstəkləyir. Platforma əlavə olaraq layihələr, əməliyyat prosesləri, texniki işlər, düzəldici tədbirlər və daxili fəaliyyətlər üzrə iş planlarının idarə olunmasını, mərhələlər üzrə irəliləyişin monitorinqini və hesabatlılığın təmin edilməsini həyata keçirir. Sistem müxtəlif sistemlərdən formalaşan hadisə, nasazlıq, layihə fəaliyyəti və digər əməliyyat nəticələrinin avtomatik olaraq tapşırıqlara çevrilməsini, əlaqələndirilməsini və vahid iş idarəetmə mühitində izlənilməsini təmin edir.",
   hr:"Kadr məlumatlarının idarə olunmasını, əmək münasibətlərinin aparılmasını və işçi heyətinin planlaşdırılması və performansının izlənməsini təmin edən sistemdir.",
-  arxiv:"Agentliyin əvvəlki dövrlərə aid kağız və elektron sənədlərinin normativ tələblərə uyğun rəqəmsallaşdırılmasını, uzunmüddətli elektron arxivinin yaradılmasını, OCR vasitəsilə tanınmasını, avtomatik kateqoriyalaşdırılmasını, semantik axtarışını və süni intellekt vasitəsilə kontekstual cavabların formalaşdırılmasını təmin edən sistemdir.",
-  vasite:"Agentliyin maddi-texniki resurslarının, əsas vəsaitlərinin və anbar ehtiyatlarının uçotunu, hərəkətini; avadanlıqların, materialların, ehtiyat hissələrinin qeydiyyatını, anbar qalıqlarının real vaxt izlənməsini, amortizasiya hesablanmasını və resursların səmərəli idarə olunmasını təmin edən sistemdir.",
+  arxiv:"Agentliyin əvvəlki dövrlərə aid kağız və elektron sənədlərinin normativ tələblərə uyğun olaraq rəqəmsallaşdırılmasını, uzunmüddətli elektron arxivinin yaradılmasını, sənədlərin təsnifləşdirilməsini, indeksləşdirilməsini və strukturlaşdırılmış şəkildə saxlanılmasını təmin edən sistemdir. Sistem sənədlərin optik xarakter tanıma (OCR) vasitəsilə tanınmasını, məzmununun çıxarılmasını, avtomatik kateqoriyalaşdırılmasını və qanunvericiliyə uyğun saxlanma müddətləri üzrə idarə olunmasını təmin edir. Eyni zamanda süni intellekt alqoritmləri vasitəsilə sənədlərin semantik analizini, axtarışını və istifadəçi sorğularına əsasən kontekstual cavabların formalaşdırılmasını təmin edərək Agentliyin əməkdaşlarının kargüzarlıq, hüquqi və operativ fəaliyyətində qərar dəstəyi rolunu oynayır.",
+  vasite:"Agentliyin maddi-texniki resurslarının, əsas vəsaitlərinin və anbar ehtiyatlarının uçotunu, hərəkətini və idarə olunmasını təmin edən sistemdir. Sistem avadanlıqların, materialların, ehtiyat hissələrinin və digər inventarların qeydiyyatını, anbarlar üzrə yerləşdirilməsini, daxilolma və çıxarılma əməliyyatlarını, qalıqların real vaxt izlənməsini və inventarlaşdırmanı təmin edir. Eyni zamanda əsas vəsaitlərin uçotu, amortizasiya hesablanması, təhkim olunma və istifadə tarixçəsinin idarə olunması, sifarişlərin planlaşdırılması və tədarük prosesləri ilə inteqrasiyanı təmin edir. Sistem yol istismar və təmir işləri üçün tələb olunan resursların operativ təmin olunmasını dəstəkləyir və maliyyə, layihə və istismar sistemləri ilə əlaqəli işləyərək resursların səmərəli idarə olunmasına imkan yaradır.",
   budce:"Yol infrastrukturu üzrə investisiya ehtiyaclarının əsaslandırılması, layihələrin prioritetləşdirilməsi, büdcə bölgüsü və maliyyə resurslarının planlaşdırılmasını təmin edən sistemdir.",
   audit:"Daxili nəzarət mexanizmlərinin icrası, audit yoxlamalarının aparılması, normativ tələblərə uyğunluğun qiymətləndirilməsi və pozuntuların izlənməsini təmin edən sistemdir.",
-  reyestr:"Avtomobil yolları, yol seqmentləri və bütün infrastruktur aktivləri üzrə struktur, məkan (GİS), hüquqi və əsas texniki məlumatların vahid model əsasında qeydiyyatını, saxlanılmasını, versiyalaşdırılmasını və digər sistemlər üçün etibarlı məlumat mənbəyi kimi təqdim olunmasını təmin edən mərkəzi sistemdir.",
-  toll:"Ödənişli avtomobil yolları üzrə tariflərin, keçid əməliyyatlarının, ödəniş proseslərinin idarə olunmasını; ANPR/LPR kameraları, RFID/ETC sistemləri, şlaqbaumlar, pozuntu aşkarlanması, borc uçotu, banklar və ödəniş provayderləri ilə inteqrasiyanı təmin edən sistemdir.",
-  neqliyyat:"Agentliyin balansında olan avtonəqliyyat vasitələrinin və xüsusi yol-tikinti texnikasının uçotunu, texniki vəziyyətini, GPS vasitəsilə real vaxt izlənməsini, yanacaq sərfiyyatını, istifadə intensivliyini; sürücülər üzrə uçotu və resursların optimallaşdırılmasını təmin edən sistemdir.",
-  tikinti:"Yol və yol qurğuları üzrə layihələrin planlaşdırılması, tikinti proseslərinin idarə olunması, texniki və müəllif nəzarəti, podratçı seçimi, müqavilə icrası, istismara qəbul aktlarının sənədləşdirilməsi və aktiv-material uyğunluğunun izlənməsini əhatə edən sistemdir.",
-  monitorinq:"Sensorlar, IoT qurğuları, tərəzilər, video müşahidə vasitələri və ölçmə sistemlərindən real vaxt məlumatlarının toplanmasını, hadisələrin aşkarlanmasını, yol infrastrukturunun texniki vəziyyətinin operativ monitorinqini; körpülər, tunellər üzrə sınaq nəticələrinin izlənməsini təmin edən platformadır.",
-  istisman:"Yol infrastrukturu üzrə aşkar olunan nasazlıqların, hadisələrin qeydiyyatını, prioritetləşdirilməsini, tapşırıqlara çevrilməsini, sahə briqadalarına yönləndirilməsini; fövqəladə hallarda hərəkətin məhdudlaşdırılması qeydiyyatını və aidiyyəti bildirişlər göndərilməsini təmin edən sistemdir.",
-  tehlu:"Qəza məlumatları, trafik göstəriciləri və yol infrastrukturu parametrləri əsasında risklərin analizi, təhlükəli sahələrin müəyyən edilməsi, tählükəsizlik üzrə qərar dəstəyi üçün analitik modellərin qurulmasını təmin edən sistemdir.",
+  reyestr:"Avtomobil yolları, yol seqmentləri və bütün infrastruktur aktivləri üzrə struktur, məkan (Coğrafi İnformasiya Sistemi — GİS), hüquqi və əsas texniki məlumatların vahid model əsasında qeydiyyatını, saxlanılmasını, versiyalaşdırılmasını və digər sistemlər üçün etibarlı məlumat mənbəyi kimi təqdim olunmasını təmin edən mərkəzi sistemdir.",
+  toll:"Ödənişli avtomobil yolları və ödənişli keçid infrastrukturu üzrə tariflərin, keçid əməliyyatlarının, ödəniş proseslərinin və aidiyyəti texnoloji komponentlərin idarə olunmasını təmin edən sistemdir. Sistem ödənişli yol məntəqələrinin, tarif zonalarının və ödəniş qaydalarının idarə olunmasını, nəqliyyat vasitələrinin keçidlərinin qeydiyyatını, ödənişlərin hesablanmasını və əməliyyatların izlənməsini təmin edir. Eyni zamanda avtomatik nömrə nişanı tanıma (ANPR/LPR) kameraları, radio tezlikli identifikasiya (RFID) və elektron ödəniş sistemləri (Elektron Ödəniş Sistemi — ETC), sensorlar, şlaqbaumlar və digər texniki vasitələrdən daxil olan məlumatların emalını, keçid hadisələrinin identifikasiyasını, pozuntuların aşkarlanmasını, ödəniş və borc uçotunu, hesabatlılıq və analitika funksiyalarını dəstəkləyir. Sistem həmçinin banklar, ödəniş provayderləri, dövlət informasiya sistemləri və digər aidiyyəti platformalarla inteqrasiya olunaraq ödənişli yollar üzrə vahid əməliyyat və idarəetmə mühitini təmin edir.",
+  neqliyyat:"Agentliyin balansında olan avtonəqliyyat vasitələrinin və xüsusi yol-tikinti texnikasının (maşın-mexanizmlər) uçotunu, texniki vəziyyətinin izlənməsini və istifadəsinin idarə olunmasını təmin edən sistemdir. Sistem nəqliyyat vasitələrinin və mexanizmlərin qeydiyyatını, texniki pasport məlumatlarını, istismar tarixçəsini, planlı və faktiki təmir işlərini, ehtiyat hissələrinin dəyişdirilməsini və texniki xidmət qrafiklərini idarə edir. Eyni zamanda Qlobal Mövqe Müəyyənləşdirmə Sistemi (GPS) və digər telematik qurğular vasitəsilə nəqliyyat vasitələrinin real vaxt rejimində yerləşməsinin, hərəkət trayektoriyasının, yanacaq sərfiyyatının və istifadə intensivliyinin izlənməsini təmin edir, sürücülər üzrə uçotu, təhkim olunmanı və məsuliyyət bölgüsünü aparır. Sistem əldə olunan məlumatlar əsasında resursların optimallaşdırılmasını, texnikanın səmərəli istifadəsini və istismar xərclərinin azaldılmasını dəstəkləyir.",
+  tikinti:"Yol və yol qurğuları üzrə layihələrin planlaşdırılması, layihələndirilməsi, tikinti proseslərinin idarə olunması, texniki və müəllif nəzarətinin həyata keçirilməsi, podratçı seçimi, müqavilələrin icrası və işlərin istismara qəbulu mərhələlərinin vahid həyat dövrü üzrə idarə olunmasını təmin edən sistemdir. Sistem həmçinin avtomobil yollarının və yol qurğularının istismara qəbul edilməsi ilə bağlı aktların və sənədlərin qeydiyyatını, saxlanılmasını və təsdiq proseslərinin idarə olunmasını, eləcə də tikinti və təmir işlərində istifadə olunan materialların, cihazların və avadanlıqların uyğunluğunu təsdiq edən sənədlərin uçotunu və aktivlərlə əlaqələndirilməsini təmin edir.",
+  monitorinq:"Sensorlar, əşyaların interneti (IoT) qurğuları, tərəzilər, video müşahidə vasitələri və ölçmə sistemlərindən real vaxt rejimində daxil olan məlumatların toplanmasını, ilkin emalını, hadisələrin aşkarlanmasını və yol infrastrukturunun texniki vəziyyətinin operativ monitorinqini təmin edən platformadır. Platforma əlavə olaraq körpülər, tunellər və digər yol qurğuları üzrə aparılan texniki sınaqların nəticələrinin daxil edilməsini, saxlanılmasını və müvafiq aktivlərlə əlaqələndirilməsini, sınaq tarixçəsinin izlənməsini və son sınaq nəticələrinin sistemlərarası istifadəsini təmin edir.",
+  istisman:"Yol infrastrukturu üzrə aşkar olunan nasazlıqların, hadisələrin və planlı işlərin qeydiyyatını, prioritetləşdirilməsini, tapşırıqlara çevrilməsini, sahə briqadalarına yönləndirilməsini və icra nəticələrinin izlənməsini təmin edən əməliyyat yönümlü idarəetmə sistemidir. Eyni zamanda sistem təbii fəlakət və fövqəladə hallar zamanı avtomobil yollarında hərəkətin müvəqqəti məhdudlaşdırılması və ya dayandırılması hallarının qeydiyyatını, səbəblərinin (uçqun, sel, qəza və s.) göstərilməsini, məhdudiyyət müddətinin idarə olunmasını və aidiyyəti istifadəçilərə və sistemlərə bildirişlərin göndərilməsini təmin edir.",
+  tehlu:"Qəza məlumatları, trafik göstəriciləri və yol infrastrukturu parametrləri əsasında risklərin analizi, təhlükəli sahələrin müəyyən edilməsi və təhlükəsizlik üzrə qərar dəstəyi üçün analitik modellərin qurulmasını təmin edən sistemdir.",
   icaze:"Normadan artıq çəki və ölçülərə malik nəqliyyat vasitələri üçün marşrutların uyğunluğunun qiymətləndirilməsini, yol aktivlərinə təsirin analizini və icazələrin verilməsi prosesinin avtomatlaşdırılmasını təmin edən sistemdir.",
-  komm:"Avtomobil yolları üzərindəki mühəndis-kommunikasiya xətlərinin planlaşdırılması, razılaşdırılması, icazələrin verilməsi və yerləşdirmə prosesinə nəzarətin həyata keçirilməsini təmin edən sistemdir.",
-  yolknar:"Yolkənarı xidmət obyektlərinin (dayanacaqlar, istirahət zonaları, xidmət sahələri) yerləşməsi, statusu, istifadəsi, inkişaf planlarının uçotunu; yolkənarı birləşmələr üçün texniki şərtlərin verilməsini, razılaşdırılmasını və icra prosesinə nəzarəti təmin edən sistemdir.",
-  torpaq:"Avtomobil yollarının yerləşdiyi təhkim zolaqları üzrə GİS əsaslı uçotu, qanunsuz tikililərin foto+geolokasiya ilə aşkarlanmasını, qeydiyyatını, müvafiq hüquqi tədbirlərin başlanmasını və icra vəziyyətinin izlənməsini təmin edən moduldur.",
-  ekologiya:"Avtomobil yolları boyunca yaşıllıq zolaqlarının, qoruyucu meşə sahələrinin uçotunu, yaşıllaşdırma işlərinin planlaşdırılmasını, bərpa-qulluq tədbirlərinin izlənməsini; ekoloji tələblərə uyğunluğun monitorinqini təmin edən moduldur.",
-  mygov:"Vətəndaş müraciətlərinin, şikayətlərin və hadisə bildirişlərinin myGOV vahid platforma üzərindən qəbul edilməsini; İnteqrasiya Platforması vasitəsilə CRM sisteminə və Yol Monitorinq Platformasına ötürülməsini, sistemlərarası məlumat mübadiləsinin standartlaşdırılmasını təmin edən komponentdir.",
-  xerite:"Avtomobil yolları şəbəkəsinin, kateqoriyaların, aktivlərin, açıq məhdudiyyət məlumatlarının vətəndaşlar üçün interaktiv xəritə üzərində təqdim olunmasını; axtarış, filtr, marşrut baxışı imkanlarını, inteqrasiya yolu ilə yenilənən məlumatların vizuallaşdırılmasını təmin edən komponentdir.",
-  portal:"Agentliyin açıqlanması nəzərdə tutulan ictimai məlumatlarının, statistik göstəricilərin, layihələr üzrə açıq statusların vahid portal üzərindən strukturlaşdırılmış, axtarıla bilən və mütəmadi yenilənən şəkildə vətəndaşlar, media və maraqlı tərəflərə təqdim olunmasını təmin edən komponentdir.",
-  mehdudat:"Avtomobil yollarında tətbiq olunan müvəqqəti hərəkət məhdudiyyətlərinin, bağlanmaların, alternativ istiqamətlərin, fövqəladə yol vəziyyəti barədə məlumatların real vaxt rejimində vətəndaşlara açıq şəkildə təqdim olunmasını; cari statusun operativ yenilənməsini və istifadəçilərin səfər planlamasında məlumatlı qərar verməsinə şərait yaradılmasını təmin edən komponentdir.",
-  chatbot:"Agentliyin xidmətləri, avtomobil yolları, müraciət prosedurları, açıq məlumatlar üzrə vətəndaşların suallarını cavablandıran; normativ baza, Elektron Arxiv və açıq məlumat mənbələri əsasında öyrədilmiş süni intellekt əsaslı informasiya komponentidir. Zəruri hallarda myGOV üzərindən müraciət yaratmağa istiqamətləndirir.",
-  odenis:"Ödənişli avtomobil yollarından istifadə üzrə Birbank, m10, ABB mobile, AzParking və digər ödəniş platformaları vasitəsilə nəqliyyat vasitəsinin dövlət qeydiyyat nişanı, yola giriş/çıxış məntəqəsi əsasında ödəniş məbləğinin hesablanmasını, elektron ödənişin həyata keçirilməsini, keçid tarixçəsi və elektron qəbzlər üzrə rəqəmsal xidmətlər göstərilməsini dəstəkləyən API əsaslı inteqrasiya xidmətidir.",
+  komm:"Avtomobil yolları üzərində və ya altında yerləşdirilən mühəndis-kommunikasiya xətlərinin planlaşdırılması, razılaşdırılması, icazələrin verilməsi və yerləşdirmə prosesinə nəzarətin həyata keçirilməsini təmin edən sistemdir.",
+  yolknar:"Yolkənarı xidmət obyektlərinin (dayanacaqlar, istirahət zonaları, xidmət sahələri və s.) yerləşməsi, statusu, istifadəsi və inkişaf planlarının uçotunu və idarə olunmasını təmin edən sistemdir. Sistem həmçinin yolkənarı xidmət obyektlərinin avtomobil yollarına birləşmələrinin tikilməsi, yenidən qurulması və təmiri üçün texniki şərtlərin verilməsini, bu şərtlərin sənədləşdirilməsini, razılaşdırılmasını və icra prosesinə nəzarətin həyata keçirilməsini təmin edir.",
+  torpaq:"Avtomobil yollarının yerləşdiyi təhkim zolaqları və yol torpaq sahələri üzrə məlumatların məkan əsaslı (Coğrafi İnformasiya Sistemi — GİS) uçotunu, sərhədlərin rəqəmsal xəritədə saxlanılmasını və bu ərazilərdə baş verən dəyişikliklərin izlənməsini təmin edən moduldur. Modul yol torpaq sahələrində qanunsuz tikililərin, müdaxilələrin və istifadələrin aşkarlanmasını, qeydiyyatını, foto və geolokasiya məlumatları ilə sənədləşdirilməsini, müvafiq hüquqi tədbirlərin başlanmasını və icra vəziyyətinin izlənməsini təmin edir. Eyni zamanda təhkim zolağı və mühafizə zolaqlarının faktiki vəziyyətinin monitorinqini, sərhədlərin işarələnməsi ilə bağlı məlumatların uçotunu və aidiyyəti qurumlarla məlumat mübadiləsini təmin edir.",
+  ekologiya:"Avtomobil yolları boyunca yerləşən yaşıllıq zolaqlarının, qoruyucu meşə sahələrinin və digər ekoloji elementlərin uçotunu, məkan məlumatları ilə birlikdə qeydiyyatını və idarə olunmasını təmin edən moduldur. Modul ağac və bitki örtüyünün növləri, yerləşməsi və vəziyyəti barədə məlumatların saxlanılmasını, yeni yaşıllaşdırma işlərinin planlaşdırılmasını, bərpa və qulluq tədbirlərinin qeydiyyatını və icrasının izlənməsini təmin edir. Eyni zamanda ekoloji tələblərin yerinə yetirilməsi, ətraf mühitə təsirlərin qiymətləndirilməsi ilə bağlı məlumatların saxlanılması və monitorinq nəticələrinin sistemlərarası istifadəsini təmin edir.",
+  mygov:"Vətəndaş müraciətlərinin, şikayətlərin və hadisə bildirişlərinin dövlətin vahid xidmət platforması (myGOV) üzərindən qəbul edilməsini təmin edən inteqrasiya komponentidir. Bu komponent vasitəsilə vətəndaşlar müraciətlərini myGOV üzərindən təqdim edir, daxil olan müraciətlər İnteqrasiya Platforması (API / Müəssisə Xidmət Şinası — ESB) vasitəsilə Vətəndaş Müraciətləri və Müştəri Münasibətləri İdarəetmə Sisteminə (CRM), eləcə də aidiyyəti olaraq Yol Monitorinq və Diaqnostika Platformasına ötürülür və emal olunur. Komponent vətəndaş interfeysini mərkəzləşdirir, sistemlərarası məlumat mübadiləsini standartlaşdırır və müraciətlərin vahid dövlət ekosistemi daxilində idarə olunmasını təmin edir.",
+  xerite:"Avtomobil yolları şəbəkəsinin, yol kateqoriyalarının, əsas aktivlərin, açıq məhdudiyyət məlumatlarının və digər ümumi istifadəyə açıq məlumatların vətəndaşlar üçün interaktiv xəritə üzərində təqdim olunmasını təmin edən komponentdir. Komponent Yol Reyestri və Aktivlərin İdarəedilməsi Sistemi, Yol İstismar, Təmir və Sahə Əməliyyatları Sistemi və digər aidiyyəti sistemlərdən inteqrasiya yolu ilə məlumat alaraq yolların yerləşməsi, statusu, marşrut üzrə ümumi məlumatlar və açıq istifadə üçün nəzərdə tutulmuş yol göstəricilərinin vizuallaşdırılmasını təmin edir. Eyni zamanda istifadəçilərə axtarış, filtr, marşrut üzrə baxış və xəritə üzərində məlumat əldə etmə imkanları təqdim edir.",
+  portal:"Agentliyin fəaliyyəti ilə bağlı açıqlanması nəzərdə tutulan ictimai məlumatların, statistik göstəricilərin, yol şəbəkəsinə dair ümumi məlumatların, layihələr üzrə açıq statusların və digər açıq informasiya resurslarının vahid portal üzərindən təqdim olunmasını təmin edən komponentdir. Komponent müxtəlif daxili sistemlərdən və Mərkəzi Analitika və İdarəetmə Panelindən inteqrasiya vasitəsilə məlumat alaraq vətəndaşlar, media və digər maraqlı tərəflər üçün strukturlaşdırılmış, axtarıla bilən və mütəmadi yenilənən məlumat mühiti yaradır.",
+  mehdudat:"Avtomobil yollarında tətbiq olunan müvəqqəti hərəkət məhdudiyyətləri, bağlanmalar, alternativ hərəkət istiqamətləri, fövqəladə hallar və digər operativ yol vəziyyəti barədə məlumatların vətəndaşlara açıq şəkildə təqdim olunmasını təmin edən komponentdir. Komponent Yol İstismar, Təmir və Sahə Əməliyyatları Sistemi və aidiyyəti monitorinq mənbələrindən inteqrasiya yolu ilə məlumat alaraq cari statusu real vaxt və ya operativ yenilənmə rejimində nümayiş etdirir və istifadəçilərin səfər planlamasında məlumatlı qərar verməsinə şərait yaradır.",
+  chatbot:"Agentliyin xidmətləri, avtomobil yolları, müraciət prosedurları, açıq məlumatlar və ümumi istifadə üçün nəzərdə tutulmuş digər mövzular üzrə vətəndaşların suallarını cavablandıran süni intellekt əsaslı informasiya komponentidir. Komponent normativ baza, açıq məlumat mənbələri, Elektron Arxiv və Sənəd İntellektual İdarəetmə Sistemi və digər aidiyyəti resurslar əsasında öyrədilərək istifadəçilərə kontekstual cavablar təqdim edir, onları uyğun xidmətlərə yönləndirir və zəruri hallarda myGOV üzərindən müraciət yaratmağa istiqamətləndirir.",
+  odenis:"Ödənişli avtomobil yollarından istifadə üzrə onlayn ödəniş imkanının təmin edilməsi məqsədilə proqram interfeysi (API) əsaslı inteqrasiya xidməti təqdim olunur. Xidmət vasitəsilə Birbank, m10, ABB mobile, AzParking və digər analoji mobil tətbiqlər və ödəniş platformaları nəqliyyat vasitəsinin dövlət qeydiyyat nişanı, nəqliyyat vasitəsinin növü, ödənişli yola giriş məntəqəsi və çıxış məntəqəsi barədə məlumatları sistemə ötürərək ödəniş məbləğinin hesablanmasını və elektron ödəniş əməliyyatının həyata keçirilməsini təmin edirlər. Xidmət həmçinin istifadəçilərə keçid tarixçəsi, ödəniş məlumatları, elektron qəbzlər və bildirişlər üzrə rəqəmsal xidmətlərin göstərilməsini dəstəkləyir.",
 };
 
 const ADESC={
@@ -599,7 +656,7 @@ const SYSPROJECT={
   vasite:  {start:'2023-03-01',deadline:'2026-12-31',ft:null,proto:''},
   budce:   {start:'2023-01-01',deadline:'2026-09-30',ft:null,proto:''},
   audit:   {start:'2022-10-01',deadline:'2025-12-31',ft:'2024-01-01',ftDeadline:'2025-09-30',proto:''},
-  reyestr: {start:'2021-01-15',deadline:'2025-12-31',ft:'2022-12-01',ftDeadline:'2025-06-30',proto:''},
+  reyestr: {start:'2021-01-15',deadline:'2025-12-31',ft:'2022-12-01',ftDeadline:'2025-06-30',proto:'https://yol-reyestri.netlify.app/'},
   toll:    {start:'2021-07-01',deadline:'2025-06-30',ft:'2023-01-01',ftDeadline:'2025-03-31',proto:''},
   neqliyyat:{start:'2022-03-01',deadline:'2026-06-30',ft:null,proto:''},
   tikinti: {start:'2022-09-01',deadline:'2026-12-31',ft:null,proto:''},
@@ -699,6 +756,32 @@ function getRoleById(id){return ROLES.find(r=>r.id===id);}
 function getSysById(id){return systems.find(s=>s.id===id);}
 
 
+const TICK_LABELS={
+  gg:'Quraşdırılıb',
+  gb:'Quraşdırılma ərəfəsidir',
+  bb:'Funksional tələb hazırlanır',
+  b:'Sistemin qurulması təsdiqlənib'
+};
+function showTickSystems(tick){
+  const panel=document.getElementById('tick-sys-panel');
+  const label=document.getElementById('tick-sys-label');
+  const list=document.getElementById('tick-sys-list');
+  const matched=systems.filter(s=>SYS_TICK[s.id]===tick);
+  label.textContent=TICK_LABELS[tick]||tick;
+  list.innerHTML=matched.map(s=>{
+    const cl=COLORS[s.color];
+    return `<span onclick="selectSystem('${s.id}')" style="display:inline-flex;align-items:center;gap:4px;
+      background:${cl.fill};color:${cl.text};border:1.5px solid ${cl.stroke};border-radius:6px;
+      padding:3px 10px;font-size:12px;font-weight:600;cursor:pointer;transition:opacity .1s"
+      onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">${s.lines[0]}</span>`;
+  }).join('');
+  panel.style.display=matched.length?'block':'none';
+  // Highlight active status item
+  document.querySelectorAll('.tick-filter-item').forEach(el=>{
+    el.style.outline=el.dataset.tick===tick?'2px solid #16A97A':'none';
+  });
+}
+
 function togglePanel(id){
   const panel=document.getElementById('panel-'+id);
   const toggle=document.querySelector(`.cs-toggle[data-panel="${id}"]`);
@@ -756,7 +839,7 @@ function highlightNode(id, strong){
       rect.setAttribute('stroke-width','2.8');
       if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
     } else {
-      el.style.opacity='0.08';
+      el.style.opacity='0.42';
       rect.setAttribute('stroke-width','0.8');
       if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
     }
@@ -780,7 +863,7 @@ function applyHover(id){
       el.style.opacity='1'; rect.setAttribute('stroke-width','1.5');
       if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
     } else {
-      el.style.opacity='0.1'; rect.setAttribute('stroke-width','0.8');
+      el.style.opacity='0.42'; rect.setAttribute('stroke-width','0.8');
       if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
     }
   });
@@ -815,6 +898,7 @@ function resetAll(){
 function selectSystem(id){
   activeId=id;
   applyHover(id);
+  window.scrollTo({top:0,behavior:'smooth'});
   const s=getSysById(id);
   // Highlight selected node with inverted colors
   document.querySelectorAll('.node-g').forEach(el=>{
@@ -829,60 +913,86 @@ function selectSystem(id){
   const sysDesc=SYSDESC[id]||s.desc;
   const proj=SYSPROJECT[id]||{};
   const hasFT=!!proj.ft;
-  const netIcon=`<svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="display:block">
-    <circle cx="6.5" cy="6.5" r="1.4" stroke="currentColor" stroke-width="1.2"/>
-    <circle cx="1.5" cy="1.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
-    <circle cx="11.5" cy="1.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
-    <circle cx="1.5" cy="11.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
-    <circle cx="11.5" cy="11.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
-    <line x1="2.4" y1="2.4" x2="5.4" y2="5.4" stroke="currentColor" stroke-width="1.1"/>
-    <line x1="10.6" y1="2.4" x2="7.6" y2="5.4" stroke="currentColor" stroke-width="1.1"/>
-    <line x1="2.4" y1="10.6" x2="5.4" y2="7.6" stroke="currentColor" stroke-width="1.1"/>
-    <line x1="10.6" y1="10.6" x2="7.6" y2="7.6" stroke="currentColor" stroke-width="1.1"/>
-  </svg>`;
+  const hasProto=!!proj.proto;
+  // Connected systems for expandable list
+  const connOut=[...new Map(connections.filter(c=>c.from===id).map(c=>getSysById(c.to)).filter(Boolean).map(x=>[x.id,x])).values()];
+  const connIn=[...new Map(connections.filter(c=>c.to===id).map(c=>getSysById(c.from)).filter(Boolean).map(x=>[x.id,x])).values()];
+  const allConns=[...new Map([...connOut,...connIn].map(x=>[x.id,x])).values()];
+  const connChips=allConns.map(cs=>{
+    const cc=COLORS[cs.color];
+    return `<span class="info-conn-chip" style="background:${cc.fill};border-color:${cc.stroke};color:${cc.text}"
+      onclick="event.stopPropagation();selectSystem('${cs.id}')">${cs.lines[0]}</span>`;
+  }).join('');
+
   infoEl.innerHTML=`
     <div class="info-main">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;
-        margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee">
-        <strong style="font-size:15px;font-weight:800;color:${cl.text};flex:1;line-height:1.35">${s.label}</strong>
-        <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
-          <button class="iact" title="Seçim — bu sistemi işarələ"
-            onclick="this.classList.toggle('marked');this.textContent=this.classList.contains('marked')?'✓':'☐'">☐</button>
-        </div>
+      <div class="info-main-top">
+        <strong style="font-size:15px;font-weight:800;color:${cl.text};flex:1;line-height:1.35;margin:0">${s.label}</strong>
+        <button class="iact" title="İşarələ"
+          onclick="this.classList.toggle('marked');this.textContent=this.classList.contains('marked')?'✓':'☐'">☐</button>
       </div>
-      <div style="font-size:13px;color:#555;line-height:1.65;">${sysDesc}</div>
+      <div class="info-desc">${sysDesc}</div>
+      <div class="info-expand-hd open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+        <span class="xarr">▾</span> Əlaqəli sistemlər
+        <span style="background:${cl.fill};color:${cl.text};border:1.5px solid ${cl.stroke};
+          border-radius:5px;padding:0 6px;font-size:10.5px;font-weight:800;margin-left:2px">${allConns.length}</span>
+      </div>
+      <div class="info-expand-body open">${connChips}</div>
     </div>
-    <div class="info-side open" id="info-side-${id}">
-      <div class="is-hd">Layihə məlumatları</div>
-      <div class="is-row">
-        <span class="is-lbl">Başlanma tarixi</span>
-        <input type="date" class="is-date-input" value="${proj.start||''}"
-          onchange="SYSPROJECT['${id}'].start=this.value">
+
+    <div class="info-dates open" id="info-side-${id}">
+      <div class="is-hd" style="display:flex;justify-content:space-between;align-items:center">
+        Tarixlər
+        <span id="db-status-${id}" style="font-size:9px;font-weight:700;color:#16A97A;opacity:0;transition:opacity .3s"></span>
       </div>
       <div class="is-row">
-        <span class="is-lbl">Son tarix (deadline)</span>
-        <input type="date" class="is-date-input" value="${proj.deadline||''}"
-          onchange="SYSPROJECT['${id}'].deadline=this.value">
+        <span class="is-lbl">Başlanma</span>
+        <input type="text" class="is-date-input" placeholder="—" readonly value="${proj.start||''}"
+          onchange="SYSPROJECT['${id}'].start=this.value;scheduleAutoSave('${id}')">
+      </div>
+      <div class="is-row">
+        <span class="is-lbl">Bitmə (deadline)</span>
+        <input type="text" class="is-date-input" placeholder="—" readonly value="${proj.deadline||''}"
+          onchange="SYSPROJECT['${id}'].deadline=this.value;scheduleAutoSave('${id}')">
       </div>
       <div class="is-row">
         <span class="is-lbl">FT son tarixi</span>
-        <input type="date" class="is-date-input" value="${proj.ftDeadline||''}"
-          onchange="SYSPROJECT['${id}'].ftDeadline=this.value">
+        <input type="text" class="is-date-input" placeholder="—" readonly value="${proj.ftDeadline||''}"
+          onchange="SYSPROJECT['${id}'].ftDeadline=this.value;scheduleAutoSave('${id}')">
       </div>
-      <button class="is-nav" id="save-btn-${id}" style="background:#F0FDF4;border-color:#16A97A;color:#0A5C3F;margin-top:4px"
-        onclick="(function(){
-          const p=SYSPROJECT['${id}'];
-          const btn=document.getElementById('save-btn-${id}');
-          btn.textContent='✓ Saxlanıldı';
-          btn.style.background='#D1FAE5';
-          setTimeout(()=>{btn.textContent='✓ Təsdiqlə';btn.style.background='#F0FDF4';},2000);
-        })()">✓ Təsdiqlə</button>
-      <div style="flex:1"></div>
-      <button class="is-nav" onclick="if(window._protoUrl_${id}) window.open(window._protoUrl_${id})" title="Prototipə keçid">
-        ⧉ Prototip
+      <button class="is-nav" id="save-btn-${id}"
+        style="background:#F0FDF4;border-color:#16A97A;color:#0A5C3F;margin-top:2px;font-size:11.5px;padding:7px"
+        onclick="saveProjectDates('${id}')">✓ Saxla</button>
+    </div>
+
+    <div class="info-meta open">
+      <div class="is-hd">Layihə məlumatları</div>
+      <div class="is-stat">
+        <span>Əlaqə</span><b>${allConns.length}</b>
+      </div>
+      <div class="is-stat">
+        <span>FT mərhələsi</span>
+        <b style="color:${hasFT?'#047857':'#aaa'}">${hasFT?'Aktiv':'Yoxdur'}</b>
+      </div>
+      <button class="is-ft-btn ${hasFT?'ft-on':'ft-off'}"
+        ${hasFT?`onclick="alert('Funksional Tələblər\\nBaşlanma: ${proj.ft||'—'}\\nSon tarix: ${proj.ftDeadline||'—'}')"`:''}>
+        📋 Funksional tələb
       </button>
-      <button class="is-nav" onclick="applyHover('${id}')" title="Rol axını xətlərini göstər">
-        ${netIcon} Axın
+      <button class="is-nav ${hasProto?'':''}}" style="${hasProto?'':'opacity:.45;cursor:default'}"
+        onclick="${hasProto?`window.open('${proj.proto}')`:''}">⧉ Prototip</button>
+      <button class="is-nav" onclick="applyHover('${id}')" title="Əlaqə xətlərini göstər"
+        style="margin-top:auto">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="display:block">
+          <circle cx="6.5" cy="6.5" r="1.4" stroke="currentColor" stroke-width="1.2"/>
+          <circle cx="1.5" cy="1.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+          <circle cx="11.5" cy="1.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+          <circle cx="1.5" cy="11.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+          <circle cx="11.5" cy="11.5" r="1.2" stroke="currentColor" stroke-width="1.1"/>
+          <line x1="2.4" y1="2.4" x2="5.4" y2="5.4" stroke="currentColor" stroke-width="1.1"/>
+          <line x1="10.6" y1="2.4" x2="7.6" y2="5.4" stroke="currentColor" stroke-width="1.1"/>
+          <line x1="2.4" y1="10.6" x2="5.4" y2="7.6" stroke="currentColor" stroke-width="1.1"/>
+          <line x1="10.6" y1="10.6" x2="7.6" y2="7.6" stroke="currentColor" stroke-width="1.1"/>
+        </svg> Axın
       </button>
     </div>`;
 }
@@ -904,14 +1014,31 @@ systems.forEach(s=>{
   rect.setAttribute('stroke-width','0.8');
   g.appendChild(rect);
   const lines=s.lines;
-  const lineH=13,totalH=lines.length*lineH,startY=p.y-totalH/2+lineH*0.55;
+  const lineH=14,totalH=lines.length*lineH,startY=p.y-totalH/2+lineH*0.55;
   lines.forEach((ln,i)=>{
     const t=document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x',p.x); t.setAttribute('y',startY+i*lineH);
     t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','central');
     t.setAttribute('fill',cl.text);
-    t.setAttribute('font-size',isMeis?'13':'10.5'); t.setAttribute('font-weight','600');
+    t.setAttribute('font-size',isMeis?'14':'12'); t.setAttribute('font-weight','600');
     t.textContent=ln; g.appendChild(t);
+  });
+  // Status ticks
+  const tkStr=SYS_TICK[s.id]||'b';
+  const tkArr=tkStr.split('');
+  // Tiklər — sağ-yuxarı küncü, node içərisində
+  tkArr.forEach((c,i)=>{
+    const tk=document.createElementNS('http://www.w3.org/2000/svg','text');
+    tk.setAttribute('x',String(p.x+w/2-5-(tkArr.length-1-i)*11));
+    tk.setAttribute('y',String(p.y-h/2+8));
+    tk.setAttribute('text-anchor','middle');
+    tk.setAttribute('dominant-baseline','central');
+    tk.setAttribute('fill',TICK_GREEN);
+    tk.setAttribute('font-size','10');
+    tk.setAttribute('font-weight','900');
+    tk.textContent='✓';
+    tk.classList.add('sys-tick');
+    g.appendChild(tk);
   });
   g.addEventListener('mouseenter',()=>{
     if(!activeId){hoveredId=s.id; applyHover(s.id);}
@@ -933,7 +1060,7 @@ document.getElementById('svg').addEventListener('click',resetAll);
 drawConnections(posMap, false);
 
 // ── VIEW SWITCHER ──
-const RADII_VIEW={meis:0,tech:155,corp:290,reg:400,ops:510,citizen:620};
+const RADII_VIEW={meis:0,tech:120,corp:225,reg:315,ops:405,citizen:495};
 const CX_RAD=650,CY_RAD=650;
 const radialAngles={
   meis:0,api:0,bi:60,dw:120,notify:180,storage:240,mobile:300,
@@ -978,7 +1105,7 @@ function setView(v){
     const svgEls=svg.querySelectorAll('*');
     svgEls.forEach(el=>{el.style.transition='none';});
     cw.scrollLeft=0; cw.scrollTop=0;
-    svg.setAttribute('width','1300');svg.setAttribute('height','645');svg.setAttribute('viewBox','0 0 1300 645');
+    svg.setAttribute('width','1300');svg.setAttribute('height','442');svg.setAttribute('viewBox','0 0 1300 442');
     requestAnimationFrame(()=>{
       svgEls.forEach(el=>{el.style.transition='';});
       document.documentElement.style.scrollBehavior='';
@@ -995,11 +1122,17 @@ function setView(v){
     const rect=g.querySelector('rect');
     rect.setAttribute('x',p.x-w/2); rect.setAttribute('y',p.y-h/2);
     rect.setAttribute('width',w); rect.setAttribute('height',h);
-    const txts=Array.from(g.querySelectorAll('text'));
-    txts.forEach((t,i)=>{
-      t.setAttribute('font-size',isRad?(isMeis?'13':'10'):(isMeis?'13':'10.5'));
-      const lH=isRad?12:13,tH=txts.length*lH,sY=p.y-tH/2+lH*0.55;
+    const allTxts=Array.from(g.querySelectorAll('text'));
+    const lbls=allTxts.filter(t=>!t.classList.contains('sys-tick'));
+    const tks=allTxts.filter(t=>t.classList.contains('sys-tick'));
+    lbls.forEach((t,i)=>{
+      t.setAttribute('font-size',isRad?(isMeis?'14':'12'):(isMeis?'14':'12'));
+      const lH=isRad?12:14,tH=lbls.length*lH,sY=p.y-tH/2+lH*0.55;
       t.setAttribute('x',p.x); t.setAttribute('y',sY+i*lH);
+    });
+    tks.forEach((tk,i)=>{
+      tk.setAttribute('x',String(p.x+w/2-5-(tks.length-1-i)*11));
+      tk.setAttribute('y',String(p.y-h/2+8));
     });
   });
   drawConnections(tp, isRad);
@@ -1108,7 +1241,8 @@ function buildMatrix(){
       const tdN=document.createElement('td');
       tdN.className='rh'; tdN.style.borderLeft=`4px solid ${cl.stroke}`;
       tdN.title=SYSDESC[sid]||s.label;
-      tdN.innerHTML=`<span style="font-weight:700;color:${cl.text}">${s.lines.join(' ')}</span>
+      const _tks=(SYS_TICK[sid]||'b').split('').map(c=>`<span style="color:${c==='g'?'#16A97A':'#B8BFC9'};font-weight:900;font-size:13px;margin-right:1px">✓</span>`).join('');
+      tdN.innerHTML=`<span style="margin-right:5px">${_tks}</span><span style="font-weight:700;color:${cl.text}">${s.lines.join(' ')}</span>
         <span class="arr-icon" style="font-size:10px;color:#bbb;margin-left:6px">▾</span>`;
       tr.appendChild(tdN);
 
@@ -1199,6 +1333,196 @@ function buildMatrix(){
     });
   });
 }
+
+// ── SQLite / aayda.db ──
+let SQL=null, db=null, dbFileHandle=null, _autoSaveTimer=null;
+
+// ── IndexedDB: persist FileSystemFileHandle between sessions ──
+function _idb(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open('aayda-fsh',1);
+    r.onupgradeneeded=e=>e.target.result.createObjectStore('h');
+    r.onsuccess=e=>res(e.target.result);
+    r.onerror=e=>rej(e);
+  });
+}
+async function _saveHandle(h){
+  const idb=await _idb();
+  return new Promise(res=>{
+    const tx=idb.transaction('h','readwrite');
+    tx.objectStore('h').put(h,'dbFile');
+    tx.oncomplete=res;
+  });
+}
+async function _loadHandle(){
+  const idb=await _idb();
+  return new Promise((res,rej)=>{
+    const tx=idb.transaction('h','readonly');
+    const r=tx.objectStore('h').get('dbFile');
+    r.onsuccess=e=>res(e.target.result||null);
+    r.onerror=rej;
+  });
+}
+
+function _applyDBRows(rows){
+  rows.forEach(([sid,start,deadline,ft,ftDl,proto])=>{
+    if(!SYSPROJECT[sid]) return;
+    if(start)    SYSPROJECT[sid].start=start;
+    if(deadline) SYSPROJECT[sid].deadline=deadline;
+    if(ft)       SYSPROJECT[sid].ft=ft;
+    if(ftDl)     SYSPROJECT[sid].ftDeadline=ftDl;
+    if(proto)    SYSPROJECT[sid].proto=proto;
+  });
+  // Refresh open panel if a system is already selected
+  if(activeId) selectSystem(activeId);
+}
+
+function _initSchema(){
+  db.run(`CREATE TABLE IF NOT EXISTS sysproject(
+    sys_id TEXT PRIMARY KEY,
+    start_date TEXT, deadline TEXT,
+    ft_date TEXT, ft_deadline TEXT, proto_url TEXT
+  )`);
+  const res=db.exec('SELECT sys_id,start_date,deadline,ft_date,ft_deadline,proto_url FROM sysproject');
+  if(res.length>0) _applyDBRows(res[0].values);
+  systems.forEach(s=>{
+    const p=SYSPROJECT[s.id]||{};
+    db.run(`INSERT OR IGNORE INTO sysproject(sys_id,start_date,deadline,ft_date,ft_deadline,proto_url)VALUES(?,?,?,?,?,?)`,
+      [s.id,p.start||null,p.deadline||null,p.ft||null,p.ftDeadline||null,p.proto||null]);
+  });
+}
+
+function _setTopbarStatus(msg,color,showBtn){
+  const s=document.getElementById('db-topbar-status');
+  const b=document.getElementById('db-connect-btn');
+  if(s){s.textContent=msg;s.style.color=color||'#16A97A';s.style.display=msg?'':'none';}
+  if(b) b.style.display=showBtn?'':'none';
+}
+
+async function _loadFromHandle(handle){
+  const perm=await handle.queryPermission({mode:'readwrite'});
+  if(perm==='prompt'){
+    // Need a user gesture — show button; auto-grant will happen on click
+    _setTopbarStatus('',null,true);
+    return false;
+  }
+  if(perm!=='granted') return false;
+  const file=await handle.getFile();
+  const buf=await file.arrayBuffer();
+  db=new SQL.Database(new Uint8Array(buf));
+  dbFileHandle=handle;
+  _initSchema();
+  _setTopbarStatus('','#16A97A',false);
+  return true;
+}
+
+async function initDB(){
+  try{
+    SQL=await initSqlJs({
+      locateFile:f=>`https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}`
+    });
+
+    // 1️⃣ Try stored FileSystemHandle (works automatically if already permitted)
+    const stored=await _loadHandle().catch(()=>null);
+    if(stored && await _loadFromHandle(stored)) return;
+
+    // 2️⃣ Try fetch for initial read (HTTP server); write handle still needed
+    try{
+      const resp=await fetch('./aayda.db');
+      if(resp.ok){
+        db=new SQL.Database(new Uint8Array(await resp.arrayBuffer()));
+        _initSchema();
+        // Show connect button so user can also get write access
+        _setTopbarStatus('','#D4960A',true);
+        return;
+      }
+    }catch(e){}
+
+    // 3️⃣ Fallback: empty in-memory DB, show connect button
+    db=new SQL.Database();
+    _initSchema();
+    _setTopbarStatus('',null,true);
+  }catch(e){console.warn('DB xətası:',e);}
+}
+
+// Called by "aayda.db bağla" button OR internally when no handle yet
+async function _acquireHandle(){
+  if(!('showOpenFilePicker' in window)) return false;
+  try{
+    const [h]=await window.showOpenFilePicker({
+      types:[{description:'SQLite DB',accept:{'application/octet-stream':['.db','.sqlite','.sqlite3']}}]
+    });
+    const perm=await h.requestPermission({mode:'readwrite'});
+    if(perm!=='granted') return false;
+    // Re-read file into DB so we don't overwrite with stale in-memory data
+    const file=await h.getFile();
+    const buf=await file.arrayBuffer();
+    db=new SQL.Database(new Uint8Array(buf));
+    dbFileHandle=h;
+    await _saveHandle(h);
+    _initSchema();
+    _setTopbarStatus('','#16A97A',false);
+    if(activeId) selectSystem(activeId);
+    return true;
+  }catch(e){
+    if(e.name!=='AbortError') console.warn('Handle xətası:',e);
+    return false;
+  }
+}
+
+async function connectDBManual(){
+  if(!SQL){alert('SQL engine hələ yüklənir...');return;}
+  await _acquireHandle();
+}
+
+async function _writeDB(id){
+  if(!db) return;
+  // Update in-memory DB
+  const p=SYSPROJECT[id]||{};
+  db.run(`INSERT OR REPLACE INTO sysproject(sys_id,start_date,deadline,ft_date,ft_deadline,proto_url)VALUES(?,?,?,?,?,?)`,
+    [id,p.start||null,p.deadline||null,p.ft||null,p.ftDeadline||null,p.proto||null]);
+  // Get file handle if not yet connected (date onchange = user gesture, so picker is allowed)
+  if(!dbFileHandle){
+    const ok=await _acquireHandle();
+    if(!ok) return; // user cancelled or not supported
+  }
+  // Write full DB back to file
+  const w=await dbFileHandle.createWritable();
+  await w.write(new Blob([db.export()],{type:'application/octet-stream'}));
+  await w.close();
+}
+
+function _showDbStatus(id,msg,color){
+  const el=document.getElementById('db-status-'+id);
+  if(!el) return;
+  el.textContent=msg; el.style.color=color||'#16A97A'; el.style.opacity='1';
+  setTimeout(()=>{el.style.opacity='0';},2200);
+}
+
+function scheduleAutoSave(id){
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer=setTimeout(async()=>{
+    try{ await _writeDB(id); _showDbStatus(id,'✓ Saxlanıldı'); }
+    catch(e){ if(e.name!=='AbortError') _showDbStatus(id,'Xəta','#E05A2B'); }
+  },700);
+}
+
+async function saveProjectDates(id){
+  const btn=document.getElementById('save-btn-'+id);
+  if(btn){btn.textContent='...';btn.disabled=true;}
+  clearTimeout(_autoSaveTimer);
+  try{
+    await _writeDB(id);
+    _showDbStatus(id,'✓ Saxlanıldı');
+    if(btn){btn.textContent='✓ Saxla';btn.style.background='#D1FAE5';btn.disabled=false;
+      setTimeout(()=>{btn.style.background='#F0FDF4';},1800);}
+  }catch(e){
+    if(btn){btn.textContent='✓ Saxla';btn.style.background='#F0FDF4';btn.disabled=false;}
+    if(e.name!=='AbortError') console.warn('Saxlama xətası:',e);
+  }
+}
+
+initDB();
 </script>
 </body>
 </html>
