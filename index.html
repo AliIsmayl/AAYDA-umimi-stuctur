@@ -30,35 +30,6 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
   margin-bottom:10px;width:100%;max-width:1300px;padding:11px 14px;
   background:#fff;border:2px solid #E0E4EC;border-radius:8px;}
 .cs-panel.open{display:flex;}
-/* ── Role buttons ── */
-.role-btn{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#444;
-  background:#fff;border:2px solid #E0E4EC;border-radius:8px;
-  padding:6px 13px 6px 7px;cursor:pointer;font-family:inherit;
-  transition:border-color .15s,background .15s,color .15s;}
-.role-btn:not(.active):hover{border-color:#bbb;background:#FAFAFA;}
-.role-btn.active{font-weight:700;}
-.rcode-pill{font-size:12px;font-weight:900;font-family:monospace;border-radius:6px;
-  padding:4px 8px;min-width:36px;text-align:center;flex-shrink:0;letter-spacing:.3px;}
-.role-lbl{font-size:12.5px;font-weight:500;white-space:nowrap;}
-/* ── Role info panel (selectRole) ── */
-.role-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;
-  padding-bottom:12px;border-bottom:1.5px solid #eee;}
-.role-code-block{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  border-radius:10px;padding:10px 16px;min-width:54px;border:2px solid;}
-.role-code-block .rc-code{font-family:monospace;font-weight:900;font-size:20px;line-height:1;}
-.role-code-block .rc-cnt{font-size:10px;font-weight:700;opacity:.7;margin-top:3px;}
-.role-meta{flex:1;min-width:0;}
-.role-meta .rm-name{font-size:16px;font-weight:800;margin-bottom:3px;}
-.role-meta .rm-desc{font-size:12.5px;color:#666;line-height:1.55;}
-.role-sys-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:6px;}
-.rsys-card{display:flex;align-items:center;justify-content:space-between;gap:8px;
-  border-radius:8px;padding:7px 10px;cursor:pointer;border:1.5px solid transparent;
-  transition:filter .1s,border-color .1s;}
-.rsys-card:hover{filter:brightness(.95);border-color:rgba(0,0,0,.12);}
-.rsys-name{font-weight:600;font-size:12.5px;flex:1;overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap;}
-.rsys-acc{font-family:monospace;font-weight:800;font-size:11px;color:#fff;
-  border-radius:4px;padding:2px 7px;flex-shrink:0;}
 /* ── Connection legend ── */
 .cl{font-size:13px;color:#333;background:#fff;border:2px solid #E0E4EC;
   border-radius:6px;padding:7px 14px;display:flex;align-items:center;gap:8px;}
@@ -78,10 +49,6 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
   transition:background .1s,border-color .1s;}
 .iact:hover{background:#EEEAFF;border-color:#7C6EF5;color:#4A3DB8;}
 .iact.marked{background:#D1FAE5;border-color:#047857;color:#047857;}
-.iact-i{width:28px;height:28px;border-radius:50%!important;padding:0!important;
-  display:inline-flex;align-items:center;justify-content:center;font-style:italic;
-  font-family:Georgia,serif;font-size:15px;font-weight:900;flex-shrink:0;}
-.iact-i.marked{background:#EEEAFF!important;border-color:#7C6EF5!important;color:#4A3DB8!important;}
 /* ── Submenu grid ── */
 .sub-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:10px 12px;}
 .sub-item{display:flex;align-items:center;justify-content:space-between;gap:6px;
@@ -136,7 +103,7 @@ h1{font-size:19px;font-weight:700;color:#1a1a2e;margin-bottom:6px;text-align:cen
   overflow:auto;max-height:72vh;}
 #mtbl{border-collapse:collapse;width:100%;}
 #mtbl th{background:#F3F5FA;font-weight:700;font-size:13px;border:1px solid #DDE1EA;
-  padding:11px 8px;text-align:center;position:sticky;top:0;z-index:2;white-space:nowrap;}
+  padding:11px 12px;text-align:center;position:sticky;top:0;z-index:2;white-space:nowrap;}
 #mtbl .rh{text-align:left;font-size:13px;font-weight:600;border:1px solid #DDE1EA;
   padding:9px 16px;position:sticky;left:0;background:#fff;z-index:1;
   min-width:185px;white-space:nowrap;transition:background .12s;}
@@ -167,19 +134,16 @@ footer{margin-top:18px;font-size:12px;color:#bbb;text-align:center}
 </head>
 <body>
 <h1>AAYDA — Sistemlər üzrə Rol Axını Kodlaşdırması</h1>
-<p class="subtitle">Sistemə toxunun — əlaqəli xətlər görünəcək · Rol seçin — giriş xəritəsi · Boş yerə basın — sıfırlayın</p>
+<p class="subtitle">Sistemə toxunun — əlaqəli xətlər görünəcək · Boş yerə basın — sıfırlayın</p>
 
 <div id="top-bar">
   <button class="vbtn active" id="btn-col" onclick="setView('col')">⊞ Sütun</button>
   <button class="vbtn" id="btn-rad" onclick="setView('rad')">◎ Halqa</button>
   <button class="vbtn" id="btn-mat" onclick="setView('mat')">⊟ Cədvəl</button>
   <span style="width:1px;height:28px;background:#E0E4EC;margin:0 4px;display:inline-block"></span>
-  <button class="cs-toggle" data-panel="roles" onclick="togglePanel('roles')">Rollar <span class="cs-arr">▾</span></button>
   <button class="cs-toggle" data-panel="conns" onclick="togglePanel('conns')">Əlaqə növləri <span class="cs-arr">▾</span></button>
   <button class="cs-toggle" data-panel="acodes" onclick="togglePanel('acodes')">Giriş kodları <span class="cs-arr">▾</span></button>
 </div>
-
-<div id="panel-roles" class="cs-panel"><!-- role buttons added by JS --></div>
 
 <div id="panel-conns" class="cs-panel">
   <div class="cl"><div class="cl-line" style="background:#7C6EF5"></div>MEİS — Vahid Giriş</div>
@@ -676,7 +640,7 @@ systems.forEach(s=>{posMap[s.id]={x:s.x,y:s.y};});
 const connG=document.getElementById('connections');
 const nodeG=document.getElementById('nodes');
 const infoEl=document.getElementById('info');
-let activeId=null, activeRole=null, hoveredId=null;
+let activeId=null, hoveredId=null;
 const ttEl=document.getElementById('node-tt');
 let ttTimer=null;
 
@@ -741,17 +705,6 @@ function hideTooltip(){clearTimeout(ttTimer);ttTimer=setTimeout(()=>{ttEl.style.
 function getRoleById(id){return ROLES.find(r=>r.id===id);}
 function getSysById(id){return systems.find(s=>s.id===id);}
 
-// Render role buttons into collapsible panel
-const rolesPanel=document.getElementById('panel-roles');
-ROLES.forEach(r=>{
-  const btn=document.createElement('button');
-  btn.className='role-btn'; btn.dataset.rid=r.id;
-  btn.title=r.desc;
-  btn.innerHTML=`<span class="rcode-pill" style="background:${r.fill};color:${r.text};border:1.5px solid ${r.color}40">${r.code}</span>
-    <span class="role-lbl">${r.label}</span>`;
-  btn.addEventListener('click',()=>selectRole(r.id));
-  rolesPanel.appendChild(btn);
-});
 
 function togglePanel(id){
   const panel=document.getElementById('panel-'+id);
@@ -800,14 +753,6 @@ function drawConnections(targetPos, isRad){
   });
 }
 
-function clearRoleBtns(){
-  document.querySelectorAll('.role-btn').forEach(b=>{
-    b.classList.remove('active');
-    b.style.background=''; b.style.borderColor=''; b.style.color='';
-    const pill=b.querySelector('.rcode-pill');
-    if(pill){pill.style.background=''; pill.style.color=''; pill.style.border='';}
-  });
-}
 
 function highlightNode(id, strong){
   document.querySelectorAll('.node-g').forEach(el=>{
@@ -854,8 +799,7 @@ function applyHover(id){
 }
 
 function resetAll(){
-  activeId=null; activeRole=null; hoveredId=null;
-  clearRoleBtns();
+  activeId=null; hoveredId=null;
   document.querySelectorAll('.node-g').forEach(el=>{
     el.style.opacity='1';
     const rect=el.querySelector('rect');
@@ -875,16 +819,8 @@ function resetAll(){
   infoEl.innerHTML='<div class="info-main" style="color:#aaa;font-size:14px">Sistemin üzərinə toxunun — əlaqəli xətlər və rol cədvəli görünəcək</div>';
 }
 
-function toggleInfoSide(id,btn){
-  const side=document.getElementById('info-side-'+id);
-  if(!side) return;
-  const open=side.classList.toggle('open');
-  btn.classList.toggle('marked',open);
-}
-
 function selectSystem(id){
-  activeId=id; activeRole=null;
-  clearRoleBtns();
+  activeId=id;
   applyHover(id);
   const s=getSysById(id);
   const acc=ACCESS[id]||{};
@@ -928,8 +864,6 @@ function selectSystem(id){
         margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee">
         <strong style="font-size:15px;font-weight:800;color:${cl.text};flex:1;line-height:1.35">${s.label}</strong>
         <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
-          <button class="iact iact-i" id="info-i-btn-${id}" title="Layihə məlumatları"
-            onclick="toggleInfoSide('${id}',this)">i</button>
           <button class="iact" title="Seçim — bu sistemi işarələ"
             onclick="this.classList.toggle('marked');this.textContent=this.classList.contains('marked')?'✓':'☐'">☐</button>
         </div>
@@ -939,7 +873,7 @@ function selectSystem(id){
         margin-bottom:6px">Əlçatanlığı olan rollar — ${Object.keys(acc).length} rol</div>
       <div class="rtags">${roleHtml}</div>
     </div>
-    <div class="info-side" id="info-side-${id}">
+    <div class="info-side open" id="info-side-${id}">
       <div class="is-hd">Layihə məlumatları</div>
       <div class="is-row">
         <span class="is-lbl">Başlanma tarixi</span>
@@ -965,61 +899,6 @@ function selectSystem(id){
     </div>`;
 }
 
-function selectRole(rid){
-  if(activeRole===rid){resetAll();return;}
-  activeRole=rid; activeId=null;
-  const r=getRoleById(rid);
-  clearRoleBtns();
-  const btn=document.querySelector(`.role-btn[data-rid="${rid}"]`);
-  if(btn){
-    btn.classList.add('active');
-    btn.style.background=r.fill; btn.style.borderColor=r.color; btn.style.color=r.text;
-    const pill=btn.querySelector('.rcode-pill');
-    if(pill){pill.style.background=r.color;pill.style.color='#fff';pill.style.border='none';}
-  }
-  document.querySelectorAll('.node-g').forEach(el=>{
-    const sid=el.dataset.id;
-    const acc=ACCESS[sid]&&ACCESS[sid][rid];
-    const rect=el.querySelector('rect');
-    const s=getSysById(sid);
-    if(acc){
-      el.style.opacity='1'; rect.setAttribute('stroke-width','2.5');
-      rect.setAttribute('stroke',r.color);
-    } else {
-      el.style.opacity='0.09'; rect.setAttribute('stroke-width','0.8');
-      if(s) rect.setAttribute('stroke',COLORS[s.color].stroke);
-    }
-  });
-  document.querySelectorAll('.conn-line').forEach(el=>{
-    el.style.opacity='0.04'; el.setAttribute('stroke-width',el.dataset.w);
-  });
-  const sysList=systems.filter(s=>ACCESS[s.id]&&ACCESS[s.id][rid]);
-  const sysHtml=sysList.map(s=>{
-    const acc=ACCESS[s.id][rid];
-    const cl=COLORS[s.color];
-    return `<div class="rsys-card" style="background:${cl.fill};border-color:${cl.stroke}30"
-        onclick="selectSystem('${s.id}')">
-      <span class="rsys-name" style="color:${cl.text}">${s.lines[0]}</span>
-      <span class="rsys-acc" style="background:${r.color}" title="${ALABEL[acc]||acc}">${acc}</span>
-    </div>`;
-  }).join('');
-  infoEl.innerHTML=`
-    <div class="info-main">
-      <div class="role-header">
-        <div class="role-code-block" style="background:${r.fill};border-color:${r.color};color:${r.text}">
-          <span class="rc-code">${r.code}</span>
-          <span class="rc-cnt">${sysList.length} sistem</span>
-        </div>
-        <div class="role-meta">
-          <div class="rm-name" style="color:${r.color}">${r.label}</div>
-          <div class="rm-desc">${r.desc}</div>
-        </div>
-      </div>
-      <div style="font-size:10.5px;font-weight:800;color:#aaa;letter-spacing:.7px;
-        text-transform:uppercase;margin-bottom:8px">Əlçatanlığı olan sistemlər</div>
-      <div class="role-sys-grid">${sysHtml}</div>
-    </div>`;
-}
 
 // Build nodes with hover
 systems.forEach(s=>{
@@ -1046,22 +925,15 @@ systems.forEach(s=>{
     t.setAttribute('font-size',isMeis?'13':'10.5'); t.setAttribute('font-weight','600');
     t.textContent=ln; g.appendChild(t);
   });
-  const roleCount=Object.keys(ACCESS[s.id]||{}).length;
-  const badge=document.createElementNS('http://www.w3.org/2000/svg','text');
-  badge.setAttribute('x',p.x+w/2-4); badge.setAttribute('y',p.y-h/2+8);
-  badge.setAttribute('text-anchor','end'); badge.setAttribute('dominant-baseline','central');
-  badge.setAttribute('fill',cl.stroke); badge.setAttribute('font-size','8');
-  badge.setAttribute('font-weight','700'); badge.setAttribute('opacity','0.6');
-  badge.textContent=roleCount+'R'; g.appendChild(badge);
   g.addEventListener('mouseenter',()=>{
-    if(!activeId&&!activeRole){hoveredId=s.id; applyHover(s.id);}
+    if(!activeId){hoveredId=s.id; applyHover(s.id);}
   });
   g.addEventListener('mouseleave',()=>{
-    if(!activeId&&!activeRole){hoveredId=null; resetAll();}
+    if(!activeId){hoveredId=null; resetAll();}
   });
   g.addEventListener('click',e=>{
     e.stopPropagation();
-    if(activeId===s.id&&!activeRole){resetAll();}
+    if(activeId===s.id){resetAll();}
     else{selectSystem(s.id);}
   });
   nodeG.appendChild(g);
@@ -1171,24 +1043,36 @@ function mkActBtn(label,tooltip,onclick,color){
 
 function buildMatrix(){
   const tbl=document.getElementById('mtbl'); tbl.innerHTML='';
+
+  const CTYPES={
+    meis:    {color:'#7C6EF5',label:'MEİS'},
+    tech:    {color:'#16A97A',label:'Texnoloji'},
+    corp2ops:{color:'#E05A2B',label:'Korp→Əməl'},
+    ops2reg: {color:'#D4960A',label:'Əməl→Reyestr'},
+    reg2corp:{color:'#A855C8',label:'Reyestr↔Korp'},
+    reg2ops: {color:'#A855C8',label:'Reyestr↔Əməl'},
+    citizen: {color:'#2D8FE0',label:'Vətəndaş'},
+  };
+
+  // Header
   const thead=document.createElement('thead');
   const tr0=document.createElement('tr');
-  const th0=document.createElement('th');
-  th0.textContent='Sistem / Rol';
-  th0.style.cssText='text-align:left;min-width:185px;position:sticky;top:0;left:0;z-index:3;background:#F3F5FA;';
-  tr0.appendChild(th0);
-  ROLES.forEach(r=>{
+  [
+    {t:'Sistem',       s:'text-align:left;min-width:200px;position:sticky;top:0;left:0;z-index:3;background:#F3F5FA;'},
+    {t:'Kateqoriya',   s:'min-width:140px;position:sticky;top:0;z-index:2;background:#F3F5FA;'},
+    {t:'Əlaqə növü',  s:'min-width:200px;position:sticky;top:0;z-index:2;background:#F3F5FA;text-align:left;'},
+    {t:'Əlaqələr',     s:'min-width:75px;position:sticky;top:0;z-index:2;background:#F3F5FA;'},
+  ].forEach(h=>{
     const th=document.createElement('th');
-    th.title=`${r.label}\n${r.desc}`;
-    th.innerHTML=`<span style="color:${r.color};font-size:13px;font-weight:800">${r.code}</span>
-      <div style="font-size:10px;color:#888;font-weight:500;margin-top:2px;white-space:normal;
-        min-width:56px;line-height:1.2">${r.label}</div>`;
+    th.textContent=h.t; th.style.cssText=h.s;
     tr0.appendChild(th);
   });
   thead.appendChild(tr0);
   tbl.appendChild(thead);
+
   const tbody=document.createElement('tbody');
   tbl.appendChild(tbody);
+
   const cats=[
     {label:'MEİS',color:'#7C6EF5',ids:['meis']},
     {label:'Texnoloji Platforma',color:'#16A97A',ids:['api','bi','dw','notify','storage','mobile']},
@@ -1197,60 +1081,79 @@ function buildMatrix(){
     {label:'Əməliyyat Sistemləri',color:'#D4960A',ids:['toll','neqliyyat','tikinti','monitorinq','istisman','tehlu','icaze','komm','yolknar','torpaq','ekologiya']},
     {label:'Vətəndaş İnterfeysi',color:'#2D8FE0',ids:['mygov','odenis','xerite','mehdudat','portal','chatbot']},
   ];
+
   let openDetTr=null;
   cats.forEach(cat=>{
     const cr=document.createElement('tr');
     const cd=document.createElement('td');
-    cd.colSpan=ROLES.length+1;
+    cd.colSpan=4;
     cd.style.cssText=`background:${cat.color}18;color:${cat.color};font-weight:800;font-size:12px;padding:8px 16px;letter-spacing:.6px;border:1px solid #DDE1EA;`;
     cd.textContent=cat.label.toUpperCase(); cr.appendChild(cd); tbody.appendChild(cr);
+
     cat.ids.forEach(sid=>{
       const s=getSysById(sid); if(!s) return;
       const cl=COLORS[s.color];
 
-      // Main row
-      const tr=document.createElement('tr');
-      tr.style.cursor='pointer';
-      tr.dataset.sid=sid;
-      const tdN=document.createElement('td');
-      tdN.className='rh'; tdN.style.borderLeft=`4px solid ${cl.stroke}`;
-      tdN.title=SYSDESC[sid]||s.label;
-      tdN.innerHTML=`<span style="font-weight:700">${s.lines.join(' ')}</span>
-        <span style="font-size:10px;color:#bbb;margin-left:6px;font-weight:400">▾</span>`;
-      tr.appendChild(tdN);
-      ROLES.forEach(r=>{
-        const td=document.createElement('td');
-        const acc=ACCESS[sid]&&ACCESS[sid][r.id];
-        td.innerHTML=acc
-          ?`<span class="mc" title="${r.label}: ${ALABEL[acc]||acc}&#10;${ADESC[acc]||''}"
-              style="background:${r.fill};color:${r.text}">${acc}</span>`
-          :`<span style="color:#ddd">—</span>`;
-        tr.appendChild(td);
-      });
-
-      // Detail submenu row — 4-column grid, click-based
-      const detTr=document.createElement('tr');
-      detTr.style.display='none';
-      const detTd=document.createElement('td');
-      detTd.colSpan=ROLES.length+1;
-      detTd.style.cssText='padding:0;border:none;';
-      const inner=document.createElement('div');
-      inner.style.cssText=`background:#F8F9FF;border-left:4px solid ${cl.stroke};
-        border-bottom:2px solid ${cl.stroke};`;
-
+      const sysConns=connections.filter(c=>c.from===sid||c.to===sid);
+      const connTypes=[...new Set(sysConns.map(c=>c.type))];
       const allConn=[...new Map([
         ...connections.filter(c=>c.from===sid).map(c=>getSysById(c.to)),
         ...connections.filter(c=>c.to===sid).map(c=>getSysById(c.from))
       ].filter(Boolean).map(x=>[x.id,x])).values()];
 
+      // ── Main row ──
+      const tr=document.createElement('tr');
+      tr.style.cursor='pointer'; tr.dataset.sid=sid;
+
+      // Col 1: System name (sticky)
+      const tdN=document.createElement('td');
+      tdN.className='rh'; tdN.style.borderLeft=`4px solid ${cl.stroke}`;
+      tdN.title=SYSDESC[sid]||s.label;
+      tdN.innerHTML=`<span style="font-weight:700;color:${cl.text}">${s.lines.join(' ')}</span>
+        <span class="arr-icon" style="font-size:10px;color:#bbb;margin-left:6px">▾</span>`;
+      tr.appendChild(tdN);
+
+      // Col 2: Category
+      const tdCat=document.createElement('td');
+      tdCat.style.cssText='text-align:center;padding:8px 12px;';
+      tdCat.innerHTML=`<span style="font-size:11px;font-weight:700;color:${cat.color};
+        background:${cat.color}18;border-radius:5px;padding:3px 9px;white-space:nowrap">${cat.label}</span>`;
+      tr.appendChild(tdCat);
+
+      // Col 3: Connection type badges
+      const tdT=document.createElement('td');
+      tdT.style.cssText='text-align:left;padding:7px 10px;';
+      tdT.innerHTML=connTypes.length
+        ? connTypes.map(t=>{
+            const ct=CTYPES[t]||{color:'#999',label:t};
+            return `<span style="font-size:10.5px;font-weight:700;color:${ct.color};
+              background:${ct.color}15;border:1.5px solid ${ct.color}55;border-radius:5px;
+              padding:2px 7px;display:inline-block;margin:1px 2px;white-space:nowrap">${ct.label}</span>`;
+          }).join('')
+        : `<span style="color:#ddd">—</span>`;
+      tr.appendChild(tdT);
+
+      // Col 4: Connection count
+      const tdCnt=document.createElement('td');
+      tdCnt.style.cssText='text-align:center;font-weight:800;font-size:15px;color:#555;';
+      tdCnt.textContent=allConn.length;
+      tr.appendChild(tdCnt);
+
+      // ── Detail submenu row ──
+      const detTr=document.createElement('tr');
+      detTr.style.display='none';
+      const detTd=document.createElement('td');
+      detTd.colSpan=4; detTd.style.cssText='padding:0;border:none;';
+      const inner=document.createElement('div');
+      inner.style.cssText=`background:#F8F9FF;border-left:4px solid ${cl.stroke};
+        border-bottom:2px solid ${cl.stroke}50;`;
+
       const grid=document.createElement('div');
       grid.className='sub-grid';
-
       allConn.forEach(cs=>{
         const cc=COLORS[cs.color];
         const item=document.createElement('div');
         item.className='sub-item';
-
         const nameSpan=document.createElement('span');
         nameSpan.className='sub-name';
         nameSpan.textContent=cs.lines[0];
@@ -1262,7 +1165,6 @@ function buildMatrix(){
           item.classList.add('active');
           selectSystem(cs.id);
         });
-
         item.appendChild(nameSpan);
         grid.appendChild(item);
       });
@@ -1271,22 +1173,26 @@ function buildMatrix(){
       detTd.appendChild(inner);
       detTr.appendChild(detTd);
 
-      // Click to toggle open/close
+      // Toggle
       tr.addEventListener('click',()=>{
-        if(openDetTr && openDetTr!==detTr){
+        if(openDetTr&&openDetTr!==detTr){
           openDetTr.style.display='none';
           openDetTr._parentTr&&openDetTr._parentTr.classList.remove('mat-active');
+          openDetTr._parentTr&&openDetTr._parentTr.querySelector('.arr-icon')&&
+            (openDetTr._parentTr.querySelector('.arr-icon').textContent='▾');
         }
         const isOpen=detTr.style.display!=='none';
         detTr.style.display=isOpen?'none':'';
         document.querySelectorAll('#mtbl .sub-item.active').forEach(el=>el.classList.remove('active'));
+        const arr=tdN.querySelector('.arr-icon');
         if(!isOpen){
           openDetTr=detTr; detTr._parentTr=tr;
           tr.classList.add('mat-active');
+          if(arr) arr.textContent='▴';
         } else {
           openDetTr=null; tr.classList.remove('mat-active');
+          if(arr) arr.textContent='▾';
         }
-        tdN.querySelector('span:last-child').textContent=isOpen?'▾':'▴';
       });
 
       tbody.appendChild(tr);
